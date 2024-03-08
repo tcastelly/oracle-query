@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  target: 'web',
+  target: 'node',
   context: __dirname,
   entry: {
     index: './src/index.ts',
@@ -13,13 +13,9 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    module: true,
-    libraryTarget: 'module',
+    libraryTarget: 'commonjs',
     filename: '[name].js',
-  },
-  externals: {
-    vue: 'vue',
-    Vue: 'vue',
+    chunkFormat: 'module'
   },
   resolve: {
     extensions: ['.ts', '.tsx'],

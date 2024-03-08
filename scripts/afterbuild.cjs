@@ -7,7 +7,7 @@ const recursiveCopy = require('./_recursiveCopy.cjs');
 
 const main = async () => {
   await recursiveCopy('src', 'dist');
-  await recursiveCopy('types', 'dist');
+  await recursiveCopy('types/src', 'dist');
 
   console.log('Copy done');
 };
