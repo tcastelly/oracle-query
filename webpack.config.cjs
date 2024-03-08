@@ -6,16 +6,15 @@ module.exports = {
   entry: {
     index: './src/index.ts',
   },
-  // un-comment to generate source-map in the build
-  // devtool: 'eval-source-map',
-  experiments: {
-    outputModule: true,
-  },
   output: {
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'commonjs',
     filename: '[name].js',
-    chunkFormat: 'module'
+    chunkFormat: 'commonjs'
+  },
+  externals: {
+    oracledb: 'oracledb',
+    xml2js: 'xml2js'
   },
   resolve: {
     extensions: ['.ts', '.tsx'],
