@@ -1,0 +1,4 @@
+# ignore all except dist flow-typed
+*
+!/README.md
+!/dist/**
