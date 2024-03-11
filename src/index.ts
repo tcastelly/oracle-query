@@ -1,21 +1,33 @@
 import RestError from '@/errors/RestError';
-import { Db } from './db';
-import createQuery from './createQuery';
-import { Config, setConfig } from './config';
+import { Db, dbTypes } from './db';
+import createQuery, { PLSql, createUnsecureQuery } from './createQuery';
+import type { Query as $Query } from './createQuery';
+
+export type Query = $Query;
 
 export interface BackendError extends RestError {}
 
-type Args = {
-  dbConfig: Config,
-  onExec: (outBinds: unknown) => unknown,
+type Credentials = {
+  user: string,
+  password: string,
+  connectString: string,
 }
 
-const setup = (args: Args) => {
-  setConfig(args.dbConfig);
-  Db.onExec = args.onExec;
-};
+export type DbInit = {
+  credentials: Credentials,
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onExec?: (db: Db<any>, outBinds: any) => unknown,
+}
+
+export default function <T = undefined>(userName: string) {
+  return new Db<T>(userName);
+}
 
 export {
+  Db,
+  PLSql,
+  dbTypes,
   createQuery,
-  setup,
+  createUnsecureQuery,
 };

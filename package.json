@@ -27,12 +27,10 @@
     "tsc:export-types": "tsc --outDir types"
   },
   "peerDependencies": {
-    "oracledb": "*",
-    "xml2js": "*"
+    "oracledb": "*"
   },
   "dependencies": {
-    "oracledb": "^6.3.0",
-    "xml2js": "^0.6.2"
+    "oracledb": "*"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.18.6",
@@ -40,7 +38,6 @@
     "@babel/preset-typescript": "^7.23.3",
     "@types/jest": "^29.5.12",
     "@types/oracledb": "^6.2.3",
-    "@types/xml2js": "^0.4.14",
     "@typescript-eslint/eslint-plugin": "^7.1.1",
     "@typescript-eslint/parser": "^7.1.1",
     "babel-eslint": "^10.1.0",

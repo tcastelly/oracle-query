@@ -14,7 +14,6 @@ module.exports = {
   },
   externals: {
     oracledb: 'oracledb',
-    xml2js: 'xml2js'
   },
   resolve: {
     extensions: ['.ts', '.tsx'],

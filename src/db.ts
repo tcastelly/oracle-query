@@ -1,10 +1,9 @@
 import { Readable } from 'stream';
 import oracledb from 'oracledb';
 import type { Lob, BindParameters } from 'oracledb';
-import xml2js from 'xml2js';
 import { kebabCaseToCamelcase } from '@/_base/str';
+import type { DbInit } from './index';
 import newClobs from './newClobs';
-import dbConfig from './config';
 import DbError from './errors/DbError';
 import map from './mapper';
 import type { Obj } from './types';
@@ -38,55 +37,6 @@ type OutputCursorType = {
 
 const mapColumn: (columns: Array<{ name: string }>) => Array<string> = (metaData) => metaData
   .map((column) => kebabCaseToCamelcase(column.name));
-
-const xmlBooleanMap = (xml: string | Obj): Promise<boolean> => new Promise((resolve, reject) => {
-  if (typeof xml === 'object') {
-    resolve(xml.boolean === 'TRUE');
-    return;
-  }
-
-  xml2js.parseString(xml, (err, result) => {
-    if (err) {
-      reject(err);
-    } else {
-      resolve(result.boolean === 'TRUE');
-    }
-  });
-});
-
-const xmlJsonMap = (xml: string | Obj): Obj => new Promise((resolve, reject) => {
-  if (typeof xml === 'object') {
-    resolve(xml);
-    return;
-  }
-
-  xml2js.parseString(xml, {
-    explicitArray: false,
-  }, (err, result) => {
-    if (err) {
-      reject(err);
-    }
-    resolve(result);
-  });
-});
-
-const queryStringResultAsJson = async (res: string) => {
-  let json;
-  try {
-    json = JSON.parse(res);
-  } catch (e) {
-    // impossible to parse , is it xml?
-    try {
-      const { result } = await xmlJsonMap(res);
-
-      json = result;
-    } catch (_e) {
-      json = res;
-    }
-  }
-
-  return json;
-};
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-use-before-define,@typescript-eslint/no-explicit-any
 function defaultMap<T>(this: Db<T>, v: {[id: string]: unknown} | string, i: number): any {
@@ -125,9 +75,9 @@ class Db<T> {
     this._userName = userName;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static onExec(outBinds: unknown) {
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars
+  static onExec(db: Db<any>, outBinds: OutputCursorType): any {
+    return outBinds;
   }
 
   log(logQuery: boolean) {
@@ -261,16 +211,20 @@ class Db<T> {
     return oracledb.getPool().close();
   }
 
-  static async init() {
+  static async init(dbInit: DbInit) {
     if (Db._pool) {
       await Db.release();
     }
 
     Db._pool = await oracledb.createPool({
-      user: String(dbConfig.user || ''),
-      password: dbConfig.password,
-      connectString: dbConfig.connectString,
+      user: dbInit.credentials.user,
+      password: dbInit.credentials.password,
+      connectString: dbInit.credentials.connectString,
     });
+
+    if (dbInit.onExec) {
+      Db.onExec = dbInit.onExec;
+    }
   }
 
   async _exec(connection: oracledb.Connection) {
@@ -337,15 +291,7 @@ class Db<T> {
       throw new DbError(e as Error, this._query);
     }
 
-    let outBinds = result.outBinds?.[this._outputVarName];
-
-    if (typeof outBinds === 'string') {
-      outBinds = await queryStringResultAsJson(outBinds);
-    }
-
-    Db.onExec(outBinds);
-
-    return outBinds;
+    return Db.onExec(this, result.outBinds?.[this._outputVarName]);
   }
 }
 
@@ -355,7 +301,5 @@ export default function <T = undefined>(userName: string) {
 
 export {
   Db,
-  xmlBooleanMap,
-  xmlJsonMap,
   dbTypes,
 };
