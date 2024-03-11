@@ -21,7 +21,7 @@ Db.init({
 ## Default use case:
 
 ```typescript
-import { Db, createQuery } from 'oracle-query';
+import db, { createQuery } from 'oracle-query';
 
 const query = createQuery()
   .pkg('pkg')
@@ -41,4 +41,11 @@ console.log(query.toString());
   ); 
   END;
 */
+
+const res = await db<string>('fake-user')
+  .log(false)
+  .query(query)
+  .exec();
 ```
+
+Documentation in progress ...
