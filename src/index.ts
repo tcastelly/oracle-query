@@ -32,4 +32,5 @@ export {
   dbTypes,
   createQuery,
   createUnsecureQuery,
+  RestError,
 };
