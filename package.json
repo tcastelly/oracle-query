@@ -1,6 +1,6 @@
 {
   "name": "oracle-query",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "oracle query builder",
   "repository": {
     "type": "git",
@@ -38,8 +38,8 @@
     "@babel/preset-typescript": "^7.23.3",
     "@types/jest": "^29.5.12",
     "@types/oracledb": "^6.2.3",
-    "@typescript-eslint/eslint-plugin": "^7.1.1",
-    "@typescript-eslint/parser": "^7.1.1",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^29.7.0",
     "babel-loader": "^9.1.3",

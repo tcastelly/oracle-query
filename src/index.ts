@@ -1,7 +1,9 @@
-import RestError from '@/errors/RestError';
+import RestError from './errors/RestError';
 import { Db, dbTypes } from './db';
 import createQuery, { PLSql, createUnsecureQuery } from './createQuery';
 import type { Query as $Query } from './createQuery';
+
+export * from './_base/str';
 
 export type Query = $Query;
 
