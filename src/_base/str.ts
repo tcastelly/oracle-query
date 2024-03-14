@@ -68,6 +68,7 @@ const camelcaseToKebabCase = (attrCamelcase = '', separator = '_') => {
 
 export {
   clear,
+  isNumeric,
   isUpperCase,
   kebabCaseToCamelcase,
   camelcaseToKebabCase,
