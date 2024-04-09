@@ -10,6 +10,7 @@ module.exports = {
     [require.resolve('@babel/preset-typescript')],
   ],
   plugins: [
+    [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true, }],
     [require.resolve('@babel/plugin-proposal-class-properties')],
     [require.resolve('babel-plugin-module-resolver'), {
       root: ["./src/"],
