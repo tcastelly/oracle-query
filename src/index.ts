@@ -1,4 +1,4 @@
-import { protectValue } from '@/_base/utils';
+import { protectValue } from './_base/utils';
 import RestError from './errors/RestError';
 import { Db, dbTypes } from './db';
 import type { Query as $Query } from './createQuery';
