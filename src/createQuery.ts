@@ -1,7 +1,6 @@
 import { Readable } from 'stream';
 import type { Obj } from './types';
-import { isMobileNumber, isNumeric } from './_base/utils';
-import { camelcaseToKebabCase } from './_base/str';
+import { protectValue } from './_base/utils';
 import mapper from './mapper';
 
 export interface Query {
@@ -66,7 +65,7 @@ class PLSql implements Query {
       res = Object.keys(params).map((k) => PLSql.recursiveParse(params[k], parent ? `${parent}.${k}` : k));
     } else {
       // fix coerced string
-      res = [[parent, ':=', PLSql.protectValue(params)].join(' ')];
+      res = [[parent, ':=', params].join(' ')];
     }
 
     return res.reduce((acc, val) => acc.concat(val), []);
@@ -123,53 +122,6 @@ class PLSql implements Query {
       queryBegin,
       queryParams,
     };
-  }
-
-  static protectValue(toProtect: null | string | boolean | number) {
-    if (toProtect === null) {
-      return 'NULL';
-    }
-
-    if (isMobileNumber(toProtect)) {
-      return `'${String(toProtect)}'`;
-    }
-
-    if (isNumeric(toProtect)) {
-      return +toProtect;
-    }
-
-    const toProtectStr = String(toProtect);
-
-    // Don t use quote for Date
-    const patterDate = /^TO_DATE\('[0-9-]+',( )?'[A-Z-]+'\)/;
-    const matchesDate = toProtectStr.match(patterDate);
-
-    // don t use quote for valid json
-    let isJson = false;
-
-    if (typeof toProtect === 'string') {
-      // if the parse fail, set raw value
-      try {
-        JSON.parse(toProtect);
-        isJson = true;
-      } catch (e) {
-        isJson = false;
-      }
-    }
-
-    if (!matchesDate && typeof toProtect === 'string' && !isJson) {
-      toProtect = `'${toProtect.replace(/'/g, '\'\'')}'`;
-    }
-
-    if (isJson && typeof toProtect === 'string') {
-      toProtect = `'${toProtect.replace(/'/g, '\'\'')}'`;
-    }
-
-    if (typeof toProtect === 'boolean') {
-      toProtect = toProtect === true ? 'TRUE' : 'FALSE';
-    }
-
-    return toProtect;
   }
 
   declare(dec: { [id: string]: string }) {
@@ -248,40 +200,9 @@ class PLSql implements Query {
         ...Object.keys(this._params)
           .filter((key) => queryDeclaredKeyParams.indexOf(key) === -1)
           .reduce((a, b) => {
-            let funcName = '';
-            // transform function parameter to plsql function
-            // parrPrmnDskId: function tArrNumber() { return [0, 1, 2]; },
-            // to
-            // parr_prmn_dsk_id => t_arr_number (0, 1, 2, 3)
-            if (typeof this._params[b] === 'function') {
-              let p = this._params[b]();
-
-              funcName = camelcaseToKebabCase(this._params[b].name.replace('_', '.'));
-
-              let alreadyProtected = false;
-              if (!Array.isArray(p)) {
-                if (typeof p === 'object') {
-                  p = (Object.keys(p) as string[]).reduce((acc, v) => {
-                    acc.push(`${camelcaseToKebabCase(v)} => ${PLSql.protectValue(p[v])}`);
-
-                    return acc;
-                  }, [] as string[]);
-
-                  alreadyProtected = true;
-                } else {
-                  p = [p];
-                }
-              }
-
+            if (typeof this._params === 'object') {
               // fix coerced string
-              const funcParams = alreadyProtected
-                ? p.join(', ')
-                : p.map(PLSql.protectValue).join(', ');
-
-              a.push([b, '=>', `${funcName}(${funcParams})`].join(' '));
-            } else if (typeof this._params === 'object') {
-              // fix coerced string
-              a.push([b, '=>', PLSql.protectValue(this._params[b])].join(' '));
+              a.push([b, '=>', this._params[b]].join(' '));
             }
 
             return a;
@@ -293,9 +214,9 @@ class PLSql implements Query {
 
       query += paramsPart.join(', ');
     } else if (Array.isArray(this._params)) {
-      query += this._params.map((v) => String(PLSql.protectValue(v))).join(', ');
+      query += this._params.map((v) => String(protectValue(v))).join(', ');
     } else if (this._params) {
-      query += String(PLSql.protectValue(this._params));
+      query += String(protectValue(this._params));
     }
 
     query += '); ';

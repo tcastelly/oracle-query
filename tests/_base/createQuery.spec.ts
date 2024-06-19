@@ -1,35 +1,36 @@
 import { PLSql, createQuery } from '@/index';
+import { protectValue } from '@/_base/utils';
 
 describe('GIVEN createQuery', () => {
   describe('GIVEN a value', () => {
     describe('WHEN protec the value', () => {
       it('THEN number should not be protect', () => {
-        expect(PLSql.protectValue(1)).toBe(1);
+        expect(protectValue(1)).toBe(1);
       });
       it('AND stringified number should not be protect', () => {
-        expect(PLSql.protectValue('1')).toBe(1);
+        expect(protectValue('1')).toBe(1);
       });
       it('AND string should be protected', () => {
-        expect(PLSql.protectValue('toto')).toBe('\'toto\'');
+        expect(protectValue('toto')).toBe('\'toto\'');
       });
       it('AND mobile phone should be protected', () => {
-        expect(PLSql.protectValue('+41 (0) 44 123 12 34')).toBe('\'+41 (0) 44 123 12 34\'');
+        expect(protectValue('+41 (0) 44 123 12 34')).toBe('\'+41 (0) 44 123 12 34\'');
       });
       it('AND boolean should not be protected', () => {
-        expect(PLSql.protectValue(true)).toBe('TRUE');
+        expect(protectValue(true)).toBe('TRUE');
       });
       it('AND "numeric" string start with "+"', () => {
-        expect(PLSql.protectValue('+91 01 23 45 67 89')).toBe('\'+91 01 23 45 67 89\'');
+        expect(protectValue('+91 01 23 45 67 89')).toBe('\'+91 01 23 45 67 89\'');
       });
       it('AND PLSql date should not be protected', () => {
         let plsqlDate = 'TO_DATE(\'2019-10-01\', \'YYYY-MM-DD\')';
-        expect(PLSql.protectValue(plsqlDate)).toBe(plsqlDate);
+        expect(protectValue(plsqlDate)).toBe(plsqlDate);
 
         plsqlDate = 'TO_DATE(\'20191001\', \'YYYYMMDD\')';
-        expect(PLSql.protectValue(plsqlDate)).toBe(plsqlDate);
+        expect(protectValue(plsqlDate)).toBe(plsqlDate);
       });
       it('AND stringified JSON should be protected', () => {
-        expect(PLSql.protectValue(JSON.stringify({ OK: true }))).toBe('\'{"OK":true}\'');
+        expect(protectValue(JSON.stringify({ OK: true }))).toBe('\'{"OK":true}\'');
       });
     });
   });
@@ -128,11 +129,12 @@ describe('GIVEN createQuery', () => {
           .params({
             p1: 0,
             p2: 1,
+            p3: 'toto',
           });
       });
 
       it('THEN the query built should be correct', () => {
-        const resExpected = 'BEGIN :res := pkg_test.func_name(P1 => 0, P2 => 1); END;';
+        const resExpected = 'BEGIN :res := pkg_test.func_name(P1 => 0, P2 => 1, P3 => \'toto\'); END;';
         expect(query.toString()).toBe(resExpected);
       });
     });
@@ -469,6 +471,27 @@ describe('GIVEN createQuery', () => {
     });
   });
 
+  describe('GIVEN query with function as embedded parameter', () => {
+    let query: PLSql;
+
+    beforeAll(async () => {
+      query = createQuery()
+        .pkg('pkg')
+        .func('do_something')
+        .declare({ decl_p: 'p' })
+        .params({
+          p: {
+            arr_ids: function ids() {
+              return [0, 1, 2];
+            },
+          },
+        });
+    });
+    it('THEN the stringify query should be correct', () => {
+      expect(query.toString()).toBe('DECLARE var_0 pkg.decl_p; BEGIN var_0.ARR_IDS := IDS(0, 1, 2); :res := pkg.do_something(P => var_0); END;');
+    });
+  });
+
   describe('GIVEN query with function and type as parameter', () => {
     let query: PLSql;
 
@@ -519,7 +542,7 @@ describe('GIVEN createQuery', () => {
           pwd: 'a-password',
         });
 
-      console.log(q.toString());
+      expect(q.toString()).toBe('BEGIN :res := pkg.auth(USERNAME => \'tcy\', PWD => \'a-password\'); END;');
     });
   });
 });

@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
-import type { Obj, Class } from './types';
+import type { Class } from './types';
 import { camelcaseToKebabCase, kebabCaseToCamelcase } from './_base/str';
-import { isDate } from './_base/utils';
+import { isDate, protectValue } from './_base/utils';
 
 type Map = typeof camelcaseToKebabCase;
 
@@ -24,7 +24,9 @@ const isNeedMapKey = (key: string, map: Map) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const _recursiveParse = (map: Map, params: any, key?: string) => {
-  let res: Obj = {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let res: any = {};
+
   if (Array.isArray(params)) {
     let newK = String(key);
 
@@ -59,7 +61,42 @@ const _recursiveParse = (map: Map, params: any, key?: string) => {
       }
 
       if (newK && s[newK] !== undefined) {
-        res[newK] = s[newK];
+        // transform function parameter to plsql function
+        // parrPrmnDskId: function tArrNumber() { return [0, 1, 2]; },
+        // to
+        // parr_prmn_dsk_id => t_arr_number (0, 1, 2, 3)
+        if (typeof s[newK] === 'function') {
+          let p = s[newK]();
+
+          let funcName = '';
+          funcName = camelcaseToKebabCase(s[newK].name.replace('_', '.'));
+
+          let alreadyProtected = false;
+          if (!Array.isArray(p)) {
+            if (typeof p === 'object') {
+              p = (Object.keys(p) as string[]).reduce((acc, v) => {
+                acc.push(`${camelcaseToKebabCase(v)} => ${protectValue(p[v])}`);
+
+                return acc;
+              }, [] as string[]);
+
+              alreadyProtected = true;
+            } else {
+              p = [p];
+            }
+          }
+
+          // fix coerced string
+          const funcParams = alreadyProtected
+            ? p.join(', ')
+            : p.map(protectValue).join(', ');
+
+          res[newK] = `${funcName}(${funcParams})`;
+        } else if (!Array.isArray(s[newK]) && (typeof s[newK] !== 'object' || s[newK] === null)) {
+          res[newK] = protectValue(s[newK]);
+        } else {
+          res[newK] = s[newK];
+        }
       }
     });
 
@@ -83,8 +120,11 @@ const _recursiveParse = (map: Map, params: any, key?: string) => {
     }
 
     if (params !== undefined) {
+      // console.log(_recursiveParse(map, params));
       res[newK] = params;
     }
+  } else if (typeof params !== 'object') {
+    res = protectValue(params);
   } else {
     res = params;
   }
