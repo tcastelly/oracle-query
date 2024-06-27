@@ -30,18 +30,18 @@ describe('GIVEN an Object to map', () => {
 
     it('THEN only camelcase should exist', () => {
       expect(JSON.stringify(res)).toBe(JSON.stringify({
-        sts: "'DFT'",
-        firstParam: "'OK'",
-        secondParam: "'OK'",
+        sts: 'DFT',
+        firstParam: 'OK',
+        secondParam: 'OK',
         thirstParam: {
-          subParam: "'OK2'",
+          subParam: 'OK2',
           subParam2: {
-            subSubSubParam: "'ok3'",
+            subSubSubParam: 'ok3',
             arr2: [6, 7, 8, 9],
           },
-          last: { isFinished: 'TRUE' },
+          last: { isFinished: true },
         },
-        arr: [{ id: 1, cd: "'A'", descr: "'One'" }],
+        arr: [{ id: 1, cd: 'A', descr: 'One' }],
       }));
     });
   });
@@ -55,9 +55,9 @@ describe('GIVEN an Object to map', () => {
     const res = map(obj, Object, true);
     it('THEN only kebabcase should exist', () => {
       expect(JSON.stringify(res)).toBe(JSON.stringify({
-        FIRST_PARAM: "'OK'",
-        SECOND_PARAM: "'OK'",
-        ARR: [{ ID: 1, CD: "'A'", DESCR: "'One'" }],
+        FIRST_PARAM: 'OK',
+        SECOND_PARAM: 'OK',
+        ARR: [{ ID: 1, CD: 'A', DESCR: 'One' }],
       }));
     });
   });
@@ -91,7 +91,7 @@ describe('GIVEN an Object to map', () => {
     });
     it('AND attributes mapped', () => {
       expect(idLabel.id).toBe(res.id);
-      expect(`'${idLabel.lbl}'`).toBe(res.lbl);
+      expect(idLabel.lbl).toBe(res.lbl);
     });
   });
 

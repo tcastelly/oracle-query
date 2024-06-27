@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 import type { Obj } from './types';
 import { protectValue } from './_base/utils';
-import mapper from './mapper';
+import { mapAndProtect as mapper } from './mapper';
 
 export interface Query {
   bindVars: Obj;

@@ -35,6 +35,9 @@ type OutputCursorType = {
   },
 } & OutputType;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any,no-use-before-define
+const _onExec = (db: Db<any>, outBinds: any) => outBinds;
+
 const mapColumn: (columns: Array<{ name: string }>) => Array<string> = (metaData) => metaData
   .map((column) => kebabCaseToCamelcase(column.name));
 
@@ -131,7 +134,6 @@ class Db<T> {
           );
 
         rowMap.push(this._map.call(this, _row, i));
-
         i += 1;
       });
       queryStream.on('error', reject);
@@ -222,9 +224,7 @@ class Db<T> {
       connectString: dbInit.credentials.connectString,
     });
 
-    if (dbInit.onExec) {
-      Db.onExec = dbInit.onExec;
-    }
+    Db.onExec = dbInit.onExec || _onExec;
   }
 
   async _exec(connection: oracledb.Connection) {
