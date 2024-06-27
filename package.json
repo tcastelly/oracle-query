@@ -27,7 +27,7 @@
     "tsc:export-types": "tsc --outDir types"
   },
   "dependencies": {
-    "oracledb": "*"
+    "oracledb": "^6.5.1"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.18.6",
