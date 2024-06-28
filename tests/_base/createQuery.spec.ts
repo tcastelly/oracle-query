@@ -532,8 +532,8 @@ describe('GIVEN createQuery', () => {
     });
   });
 
-  describe('try', () => {
-    it('try', () => {
+  describe('GIVEN a query with object as param', () => {
+    it('THEN the stringify query should be correct', () => {
       const q = createQuery()
         .pkg('pkg')
         .func('auth')
@@ -543,6 +543,24 @@ describe('GIVEN createQuery', () => {
         });
 
       expect(q.toString()).toBe('BEGIN :res := pkg.auth(USERNAME => \'tcy\', PWD => \'a-password\'); END;');
+    });
+  });
+
+  describe('GIVEN a query with multiple functions as first level params', () => {
+    it('THEN the query should be correct', () => {
+      const q = createQuery()
+        .pkg('pkg')
+        .func('do_something')
+        .params({
+          arrId: function tArrId() {
+            return [1, 2];
+          },
+          arrOtherId: function tArrId() {
+            return [3, 4];
+          },
+        });
+
+      expect(q.toString()).toEqual('BEGIN :res := pkg.do_something(ARR_ID => T_ARR_ID(1, 2), ARR_OTHER_ID => T_ARR_ID(3, 4)); END;');
     });
   });
 });
