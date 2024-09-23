@@ -1,4 +1,4 @@
-import type { Obj, Class, T } from '../types.d';
+import type { Obj, Class, T } from '../../types';
 
 /**
  * Dto Proxy

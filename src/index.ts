@@ -4,7 +4,8 @@ import { Db, dbTypes } from './db';
 import type { Query as $Query } from './createQuery';
 import createQuery, { createUnsecureQuery, PLSql } from './createQuery';
 import mapper from './mapper';
-import dto from './_base/dto';
+
+export * from './_base/dto/index';
 
 export * from './_base/str';
 
@@ -37,6 +38,5 @@ export {
   createQuery,
   createUnsecureQuery,
   RestError,
-  dto,
   protectValue,
 };
