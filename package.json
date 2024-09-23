@@ -1,6 +1,6 @@
 {
   "name": "oracle-query",
-  "version": "0.2.3-beta.1",
+  "version": "0.2.3-beta.2",
   "description": "oracle query builder",
   "repository": {
     "type": "git",
@@ -20,7 +20,7 @@
     "lint:fix": "npm run tsc:check-types && eslint --fix --ext .js,.ts src tests",
     "lint:quiet": "eslint --quiet \"{tests,src}/**/*.{js,ts,tsx,vue}\" && npm run tsc:check-types",
     "precommit": "lint-staged",
-    "prepare": "husky install",
+    "prepare": "husky",
     "prepublishOnly": "npm run lint && npm run test && npm run build",
     "test": "NODE_OPTIONS=--unhandled-rejections=warn jest tests/** --no-cache",
     "tsc:check-types": "tsc --noemit",
