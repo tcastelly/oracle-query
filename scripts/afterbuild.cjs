@@ -1,5 +1,4 @@
-const { join } = require('path');
-const { copyFile } = require('fs/promises');
+const fs = require('fs/promises');
 const recursiveCopy = require('./_recursiveCopy.cjs');
 
 //
@@ -8,6 +7,7 @@ const recursiveCopy = require('./_recursiveCopy.cjs');
 const main = async () => {
   await recursiveCopy('src', 'dist');
   await recursiveCopy('types/src', 'dist');
+  await fs.writeFile('./dist/dto.d.ts', 'export * from \'./_base/dto/index.d\';\r\n');
 
   console.log('Copy done');
 };

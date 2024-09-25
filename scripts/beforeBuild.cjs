@@ -14,7 +14,6 @@ const del = (dir) => new Promise((resolve) => {
   });
 });
 
-
 const mkdir = (dir) => new Promise((resolve) => {
   fs.mkdir(dir, (err) => {
     if (err) {

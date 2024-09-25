@@ -2,7 +2,7 @@ import { Readable } from 'stream';
 import oracledb from 'oracledb';
 import type { Lob, BindParameters } from 'oracledb';
 import { kebabCaseToCamelcase } from '@/_base/str';
-import type { DbInit } from './index';
+import type { DbInit } from './backend';
 import newClobs from './newClobs';
 import DbError from './errors/DbError';
 import map from './mapper';

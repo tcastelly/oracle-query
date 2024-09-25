@@ -5,8 +5,6 @@ import type { Query as $Query } from './createQuery';
 import createQuery, { createUnsecureQuery, PLSql } from './createQuery';
 import mapper from './mapper';
 
-export * from './_base/dto/index';
-
 export * from './_base/str';
 
 export type Query = $Query;

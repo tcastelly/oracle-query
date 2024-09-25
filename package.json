@@ -1,6 +1,6 @@
 {
   "name": "oracle-query",
-  "version": "0.2.3",
+  "version": "0.3.0-beta.1",
   "description": "oracle query builder",
   "repository": {
     "type": "git",
@@ -8,8 +8,20 @@
   },
   "license": "MIT",
   "author": "Thomas CASTELLY",
-  "main": "dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/backend.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.js",
+      "types": "./dist/backend.d.ts"
+    },
+    "./dto": {
+      "require": "./dist/dto.js",
+      "import": "./dist/dto.js",
+      "types": "./dist/dto.d.ts"
+    }
+  },
   "scripts": {
     "afterbuild": "node ./scripts/afterbuild.cjs",
     "beforebuild": "node ./scripts/beforeBuild.cjs && npm run tsc:export-types",
