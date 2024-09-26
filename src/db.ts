@@ -5,7 +5,7 @@ import { kebabCaseToCamelcase } from '@/_base/str';
 import type { DbInit } from './backend';
 import newClobs from './newClobs';
 import DbError from './errors/DbError';
-import map from './mapper';
+import { mapper } from './mapper';
 import type { Obj } from './types';
 import type { Query } from './createQuery';
 
@@ -44,7 +44,7 @@ const mapColumn: (columns: Array<{ name: string }>) => Array<string> = (metaData
 // eslint-disable-next-line @typescript-eslint/no-unused-vars,no-use-before-define,@typescript-eslint/no-explicit-any
 function defaultMap<T>(this: Db<T>, v: {[id: string]: unknown} | string, i: number): any {
   if (v && this._outputVarType === oracledb.CURSOR) {
-    return map(v);
+    return mapper(v);
   }
   return v;
 }

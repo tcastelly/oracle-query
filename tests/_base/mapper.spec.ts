@@ -1,4 +1,4 @@
-import map from '@/mapper';
+import { mapper } from '@/mapper';
 
 class ItemDto {
   id: unknown;
@@ -26,7 +26,7 @@ describe('GIVEN an Object to map', () => {
       arr: [{ id: 1, cd: 'A', descr: 'One' }],
     };
 
-    const res = map(obj);
+    const res = mapper(obj);
 
     it('THEN only camelcase should exist', () => {
       expect(JSON.stringify(res)).toBe(JSON.stringify({
@@ -52,7 +52,7 @@ describe('GIVEN an Object to map', () => {
       secondParam: 'OK',
       arr: [{ id: 1, cd: 'A', descr: 'One' }],
     };
-    const res = map(obj, Object, true);
+    const res = mapper(obj, Object, true);
     it('THEN only kebabcase should exist', () => {
       expect(JSON.stringify(res)).toBe(JSON.stringify({
         FIRST_PARAM: 'OK',
@@ -64,7 +64,7 @@ describe('GIVEN an Object to map', () => {
 
   describe('WHEN map array', () => {
     const obj = { parr_nr: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] };
-    const res = map(obj, Object, true);
+    const res = mapper(obj, Object, true);
     it('THEN only kebabcase should exist', () => {
       expect(JSON.stringify(res)).toBe(JSON.stringify({
         PARR_NR: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
@@ -77,7 +77,7 @@ describe('GIVEN an Object to map', () => {
     const obj = {
       attr,
     };
-    const res = map(obj);
+    const res = mapper(obj);
     it('THEN the answer should be an empty object', () => {
       expect(JSON.stringify(res)).toBe(JSON.stringify({}));
     });
@@ -85,7 +85,7 @@ describe('GIVEN an Object to map', () => {
 
   describe('WHEN map Dto', () => {
     const idLabel = { id: 1, lbl: 'one' };
-    const res = map(idLabel, ItemDto);
+    const res = mapper(idLabel, ItemDto);
     it('THEN Dto has to be instantiated', () => {
       expect(res instanceof ItemDto).toBe(true);
     });
@@ -103,7 +103,7 @@ describe('GIVEN an Object to map', () => {
       parentAttr: 'im the parent',
       items: [],
     };
-    const res = map(inDto, SampleDto);
+    const res = mapper(inDto, SampleDto);
     it('THEN Dto has to be instantiated', () => {
       expect(res instanceof SampleDto).toBe(true);
     });

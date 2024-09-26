@@ -161,8 +161,7 @@ const mapAndProtect = <T>(obj: unknown, Cls: Class<T> = Object, reverse = false)
   return _obj;
 };
 
-export default mapper;
-
 export {
+  mapper,
   mapAndProtect,
 };
