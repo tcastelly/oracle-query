@@ -3,7 +3,8 @@ import RestError from './errors/RestError';
 import { Db, dbTypes } from './db';
 import type { Query as $Query } from './createQuery';
 import createQuery, { createUnsecureQuery, PLSql } from './createQuery';
-import mapper from './mapper';
+
+export * from './mapper';
 
 export * from './_base/str';
 
@@ -32,7 +33,6 @@ export {
   Db,
   PLSql,
   dbTypes,
-  mapper,
   createQuery,
   createUnsecureQuery,
   RestError,
