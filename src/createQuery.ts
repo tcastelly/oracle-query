@@ -3,14 +3,14 @@ import type { Obj } from './types';
 import { protectValue } from './_base/utils';
 import { mapAndProtect as mapper } from './mapper';
 
-export interface Query {
+export interface Query<T = Obj> {
   bindVars: Obj;
 
   outputName: 'res' | 'cursor';
 
   toString(): string;
 
-  columns: Array<string>;
+  columns: Array<keyof T>;
 }
 
 class UnsecurePLSql implements Query {

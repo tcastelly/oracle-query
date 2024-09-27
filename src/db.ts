@@ -58,12 +58,12 @@ type OutputVarType = typeof oracledb.CURSOR
 
 class Db<T> {
   // list of map to apply
-  _map = defaultMap;
+  _map = defaultMap<T>;
 
   // try to log udpate queries
   _logQuery: null | boolean | (() => boolean) = null;
 
-  _query: Query;
+  _query: Query<T>;
 
   _outputVarType: OutputVarType = oracledb.STRING;
 
@@ -89,7 +89,7 @@ class Db<T> {
     return this;
   }
 
-  query(query: Query) {
+  query(query: Query<T>) {
     this._query = query;
 
     return this;
@@ -116,7 +116,7 @@ class Db<T> {
 
     const columnMap = mapColumn(metaData);
 
-    this._query.columns = columnMap;
+    this._query.columns = columnMap as Array<keyof T>;
 
     const rowMap: {[id: string]: unknown}[] = [];
 
@@ -288,7 +288,7 @@ class Db<T> {
       // close clob is deprecated, destroy instead
       await Promise.all(clobList.map((clob) => clob.destroy()));
     } catch (e) {
-      throw new DbError(e as Error, this._query);
+      throw new DbError(e as Error, this._query as Query<unknown>);
     }
 
     return Db.onExec(this, result.outBinds?.[this._outputVarName]);
