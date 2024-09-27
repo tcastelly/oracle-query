@@ -3,12 +3,13 @@ import RestError from './errors/RestError';
 import { Db, dbTypes } from './db';
 import type { Query as $Query } from './createQuery';
 import createQuery, { createUnsecureQuery, PLSql } from './createQuery';
+import type { Obj } from './types';
 
 export * from './mapper';
 
 export * from './_base/str';
 
-export type Query = $Query;
+export type Query<T = Obj> = $Query<T>;
 
 export interface BackendError extends RestError {}
 
