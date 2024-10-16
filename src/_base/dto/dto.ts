@@ -109,7 +109,6 @@ const decorator = (target: T, ...mixins: Array<Class>) => {
   };
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function (args: T | { mixins?: Array<Class> }, ...mixins: Array<Class>): any {
   // called by @dto({ mixins: [] })
   if (typeof args === 'object' && args.mixins) {

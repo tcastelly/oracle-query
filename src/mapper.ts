@@ -22,9 +22,7 @@ const isNeedMapKey = (key: string, map: Map) => {
   return !(key && map === kebabCaseToCamelcase && (indexOf === -1));
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const _recursiveParse = (map: Map, protect: (v: unknown) => unknown, params: any, key?: string) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let res: any = {};
 
   if (Array.isArray(params)) {

@@ -1,7 +1,6 @@
 //
 // script launched before build only
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const fs = require('fs');
 
 const del = (dir) => new Promise((resolve) => {

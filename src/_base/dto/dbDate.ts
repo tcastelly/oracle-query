@@ -35,7 +35,7 @@ const mapToDbDate = (value: null | string) => {
 };
 
 // Cast a date to a plsql function for db compatibility
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export default function <T> (target: T, key: keyof T, descriptor?: DescriptorType): any {
   const privateKey = `_${String(key)}`;
 

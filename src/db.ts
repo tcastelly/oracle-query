@@ -35,13 +35,13 @@ type OutputCursorType = {
   },
 } & OutputType;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any,no-use-before-define
+// eslint-disable-next-line no-use-before-define
 const _onExec = (db: Db<any>, outBinds: any) => outBinds;
 
 const mapColumn: (columns: Array<{ name: string }>) => Array<string> = (metaData) => metaData
   .map((column) => kebabCaseToCamelcase(column.name));
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars,no-use-before-define,@typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-unused-vars,no-use-before-define
 function defaultMap<T>(this: Db<T>, v: {[id: string]: unknown} | string, i: number): any {
   if (v && this._outputVarType === oracledb.CURSOR) {
     return mapper(v);
@@ -78,7 +78,6 @@ class Db<T> {
     this._userName = userName;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any,@typescript-eslint/no-unused-vars
   static onExec(db: Db<any>, outBinds: OutputCursorType): any {
     return outBinds;
   }
@@ -97,7 +96,7 @@ class Db<T> {
 
   map<Z extends (T extends undefined ? unknown : T),
     Y = T extends undefined ? Z : T,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   >(_map: (item: any, i: number) => Z | Promise<Z>): Db<Y> {
     this._map = _map;
 
@@ -238,9 +237,7 @@ class Db<T> {
       throw Error('No query to exec');
     }
 
-    /* eslint-disable @typescript-eslint/no-explicit-any */
     let result: oracledb.Result<Partial<{ res: any; cursor: any }>>;
-    /* eslint-enable */
 
     const queryStr = this._query.toString();
     try {

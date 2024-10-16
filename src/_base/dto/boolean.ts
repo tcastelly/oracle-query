@@ -10,7 +10,7 @@ const isTrue = (value: string | number | boolean): boolean => {
  * Transform a db boolean
  * int/string to boolean
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export default function <T> (target: T, key: keyof T, descriptor?: DescriptorType): any {
   const privateKey = `_${String(key)}`;
 

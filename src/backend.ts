@@ -22,7 +22,6 @@ type Credentials = {
 export type DbInit = {
   credentials: Credentials,
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onExec?: (db: Db<any>, outBinds: any) => unknown,
 }
 

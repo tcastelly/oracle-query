@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 export type Class<T = any> = {
   new(...args: any[]): T;
 };

@@ -3,7 +3,7 @@ import type { Obj } from '@/types';
 
 //
 // an hidden attribute can't be listed, but can be access directly
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 export default function (target: Obj, key: string, descriptor?: DescriptorType): any {
   const privateKey = `?${key}`;
 
