@@ -1,6 +1,7 @@
 import { protectValue } from './_base/utils';
 import RestError from './errors/RestError';
 import { Db, dbTypes } from './db';
+import DbError from './errors/DbError';
 import type { Query as $Query } from './createQuery';
 import createQuery, { createUnsecureQuery, PLSql } from './createQuery';
 import type { Obj } from './types';
@@ -37,4 +38,5 @@ export {
   createUnsecureQuery,
   RestError,
   protectValue,
+  DbError,
 };

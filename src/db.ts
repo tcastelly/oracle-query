@@ -35,13 +35,12 @@ type OutputCursorType = {
   },
 } & OutputType;
 
-// eslint-disable-next-line no-use-before-define
 const _onExec = (db: Db<any>, outBinds: any) => outBinds;
 
 const mapColumn: (columns: Array<{ name: string }>) => Array<string> = (metaData) => metaData
   .map((column) => kebabCaseToCamelcase(column.name));
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars,no-use-before-define
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function defaultMap<T>(this: Db<T>, v: {[id: string]: unknown} | string, i: number): any {
   if (v && this._outputVarType === oracledb.CURSOR) {
     return mapper(v);
@@ -285,7 +284,7 @@ class Db<T> {
       // close clob is deprecated, destroy instead
       await Promise.all(clobList.map((clob) => clob.destroy()));
     } catch (e) {
-      throw new DbError(e as Error, this._query as Query<unknown>);
+      throw new DbError(e as Error & { code: string }, this._query as Query<unknown>);
     }
 
     return Db.onExec(this, result.outBinds?.[this._outputVarName]);
