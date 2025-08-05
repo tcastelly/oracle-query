@@ -22,12 +22,12 @@ jobs:
         uses: actions/setup-node@v4
         if: steps.version-updated.outputs.has-updated
         with:
-          node-version: '20.x'
+          node-version: '22.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies and build 🔧
         if: steps.version-updated.outputs.has-updated
-        run: npm ci --force && npm run build
+        run: npm ci && npm run build
 
       - name: Publish package on NPM 📦
         if: steps.version-updated.outputs.has-updated
