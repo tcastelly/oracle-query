@@ -16,7 +16,9 @@
       "@/*": [
         "src/*"
       ]
-    }
+    },
+    // for tsc definition only
+    "declaration": true,
   },
   "include": [
     "src",
