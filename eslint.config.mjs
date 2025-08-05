@@ -1,120 +1,174 @@
-import globals from 'globals';
-import jest from 'eslint-plugin-jest';
-import importPlugin from 'eslint-plugin-import';
+import path from 'node:path';
+import parser from '@typescript-eslint/parser';
+import { includeIgnoreFile } from '@eslint/compat';
+import js from '@eslint/js';
+import { configs, plugins, rules } from 'eslint-config-airbnb-extended';
 import typescriptEslintPlugin from '@typescript-eslint/eslint-plugin';
-import { FlatCompat } from '@eslint/eslintrc';
-import path from 'path';
-import tsParser from '@typescript-eslint/parser';
 
-// mimic CommonJS variables -- not needed if using CommonJS
-const __dirname = path.dirname(import.meta.url);
+const gitignorePath = path.resolve('.', '.gitignore');
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  resolvePluginsRelativeTo: __dirname,
-});
-
-export default [
-  ...compat.config({
-    extends: ['airbnb-base'],
-    rules: {
-      // fix airbnb conflicts
-      'import/extensions': 'off',
-      'import/no-unresolved': 'off',
+const defaultConfig = [
+  {
+    files: ['**/*.{js,cjs,mjs,ts,tsx,jsx}'],
+    languageOptions: {
+      parser,
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.resolve('.'),
+        sourceType: 'module',
+        ecmaVersion: 'latest',
+      },
     },
-  }),
+  },
+];
+
+const jsConfig = [
+  {
+    name: 'js/config',
+    ...js.configs.recommended,
+  },
+  plugins.stylistic,
+  plugins.importX,
+  ...configs.base.recommended,
+];
+
+const nodeConfig = [
+  plugins.node,
+  ...configs.node.recommended,
+];
+
+const typescriptConfig = [
+  plugins.typescriptEslint,
+  ...configs.base.typescript,
+  rules.typescript.typescriptEslintStrict,
+
+  // custom rules
   {
     files: ['**/*.+(ts|tsx|mts|cts|js|mjs|cjs|jsx)'],
     plugins: {
       '@typescript-eslint': typescriptEslintPlugin,
-      import: importPlugin,
-    },
-    languageOptions: {
-      ecmaVersion: 'latest',
-      parser: tsParser,
-      sourceType: 'module',
-      globals: {
-        ...globals.browser,
-      },
     },
     rules: {
-      'func-names': 0,
-      'no-underscore-dangle': 0,
-      'no-param-reassign': 0,
-      'max-len': [2, 150, 4],
-      'max-classes-per-file': 0,
-      'space-before-function-paren': 0,
-
-      // controller have to be prototyped
-      'class-methods-use-this': 0,
-
-      // use for constructor dto
-      'no-useless-constructor': 'off',
-      '@typescript-eslint/no-useless-constructor': 'off',
-      '@typescript-eslint/explicit-module-boundary-types': 0,
-      '@typescript-eslint/no-empty-interface': 0,
-
-      '@typescript-eslint/ban-ts-comment': 0,
-      '@typescript-eslint/no-this-alias': 0,
-      '@typescript-eslint/no-empty-function': 0,
-
-      // fix empty constructor in @Dto classes
-      '@typescript-eslint/no-unsafe-declaration-merging': 0,
-      'no-empty-function': 0,
-
-      // fix export/import default
-      'import/no-named-as-default': 0,
-
-      // fix airbnb conflicts
-      'import/extensions': 'off',
-      'import/no-unresolved': 'off',
-
-      // fix try/catch unused (e)
-      '@typescript-eslint/no-unused-vars': [
-        'error', {
-          ignoreRestSiblings: true,
-          caughtErrors: 'none',
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: 'variable',
+          format: null,
+          custom: {
+            regex: '^(_?[a-zA-Z0-9]*)|([A-Z0-9_])$',
+            match: true,
+          },
         },
       ],
-      'no-unused-vars': 'off',
-    },
-    settings: {
-      ...importPlugin.configs.typescript.settings,
-      'import/resolver': {
-        ...importPlugin.configs.typescript.settings['import/resolver'],
-      },
+      '@typescript-eslint/no-useless-constructor': 'off',
+      '@typescript-eslint/promise-function-async': 'off',
+      '@typescript-eslint/array-type': 'off',
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/prefer-nullish-coalescing': 'off',
+      '@stylistic/max-len': [2, 150, 4],
+      'no-underscore-dangle': 'off',
     },
   },
+
+  // specific rules for node scripts
   {
-    files: ['scripts/*.+(ts|tsx|mts|cts|js|mjs|cjs|jsx)'],
+    files: ['scripts/**/*.{js,cjs}'],
+    plugins: {
+      '@typescript-eslint': typescriptEslintPlugin,
+    },
     rules: {
-      '@typescript-eslint/ban-ts-comment': 0,
-      '@typescript-eslint/no-var-requires': 0,
-      'no-console': 0
+      'import-x/extensions': 'off',
     },
   },
+
+  // specific rules for custom types
+  {
+    files: ['**/*.d.ts'],
+    plugins: {
+      '@typescript-eslint': typescriptEslintPlugin,
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-shadow': 'off',
+    },
+  },
+
+  // specific rules for db framework
+  {
+    files: [
+      'src/_base/dto/*.ts',
+      'src/db.ts',
+      'src/createQuery.ts',
+      'src/backend.ts',
+    ],
+    plugins: {
+      '@typescript-eslint': typescriptEslintPlugin,
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+      '@typescript-eslint/no-empty-object-type': 'off',
+      'no-param-reassign': 'off',
+      'max-classes-per-file': 'off',
+    },
+  },
+
+  // specific rules for DTOs
+  {
+    files: ['**/**/*Dto.ts'],
+    plugins: {
+      '@typescript-eslint': typescriptEslintPlugin,
+    },
+    rules: {
+      '@typescript-eslint/no-empty-object-type': 'off',
+      '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+      '@typescript-eslint/no-useless-constructor': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'max-classes-per-file': 'off',
+    },
+  },
+
+  // tests overrides
   {
     files: ['tests/**', '**/__mocks__/**/*.js'],
-    ...jest.configs['flat/recommended'],
-    rules: {
-      'jest/no-conditional-expect': 'off',
-      camelcase: [
-        'error', {
-          // allow underscore for query builder
-          // e.g: pnumDskId: function pkgApiPl_allDesksId() {}
-          allow: ['^pkgApi[a-zA-Z]*_'],
-          properties: 'never',
-        },
-      ],
+    languageOptions: {
+      parser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
     },
+    rules: {
+      'max-classes-per-file': 'off',
+      'no-undef': 'off',
+      'import-x/extensions': 'off',
+      'import-x/no-unresolved': 'off',
+      '@stylistic/max-len': [2, 150, 4],
+      'no-underscore-dangle': 'off',
+      '@typescript-eslint/no-unsafe-declaration-merging': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+    },
+  },
+  {
+    files: ['src/extracted_apis/*.ts'],
+    rules: {},
   },
   {
     files: ['eslint.config.mjs'],
-    rules: {
-      'import/no-extraneous-dependencies': 'off',
-    },
+    rules: {},
   },
   {
-    ignores: ['**/eslint.config.mjs'],
+    ignores: ['dist/**', 'node_modules/**', 'tests/unit/*.js'],
   },
+];
+
+export default [
+  includeIgnoreFile(gitignorePath),
+  ...defaultConfig,
+  ...jsConfig,
+  ...nodeConfig,
+  ...typescriptConfig,
 ];

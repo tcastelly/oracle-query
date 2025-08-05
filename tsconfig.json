@@ -3,10 +3,11 @@
     "strict": true,
     "strictFunctionTypes": false,
     "strictPropertyInitialization":  false,
-    "noImplicitAny":  true,
+    "noImplicitAny": true,
     "experimentalDecorators": true,
     "target": "ESNext",
-    "module": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "esModuleInterop": true,
     "baseUrl": ".",
     "skipLibCheck": true,
@@ -15,14 +16,13 @@
       "@/*": [
         "src/*"
       ]
-    },
-    // for tsc definition only
-    "declaration": true,
+    }
   },
   "include": [
     "src",
     "tests",
-    "types"
+    "types",
+    "jest.config.ts"
   ],
   "exclude": [
     "dist",

@@ -14,19 +14,19 @@ export type Query<T = Obj> = $Query<T>;
 
 export interface BackendError extends RestError {}
 
-type Credentials = {
-  user: string,
-  password: string,
-  connectString: string,
+interface Credentials {
+  user: string;
+  password: string;
+  connectString: string;
 }
 
-export type DbInit = {
-  credentials: Credentials,
+export interface DbInit {
+  credentials: Credentials;
 
-  onExec?: (db: Db<any>, outBinds: any) => unknown,
+  onExec?: (db: Db<any>, outBinds: any) => unknown;
 }
 
-export default function <T = undefined>(userName: string) {
+export default function<T = undefined>(userName: string) {
   return new Db<T>(userName);
 }
 

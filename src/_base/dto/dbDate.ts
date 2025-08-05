@@ -36,7 +36,7 @@ const mapToDbDate = (value: null | string) => {
 
 // Cast a date to a plsql function for db compatibility
 
-export default function <T> (target: T, key: keyof T, descriptor?: DescriptorType): any {
+export default function<T> (target: T, key: keyof T, descriptor?: DescriptorType): any {
   const privateKey = `_${String(key)}`;
 
   if (descriptor) {

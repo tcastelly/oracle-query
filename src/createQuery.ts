@@ -1,4 +1,4 @@
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import type { Obj } from './types';
 import { protectValue } from './_base/utils';
 import { mapAndProtect as mapper } from './mapper';
@@ -8,9 +8,9 @@ export interface Query<T = Obj> {
 
   outputName: 'res' | 'cursor';
 
-  toString(): string;
+  toString: () => string;
 
-  columns: Array<keyof T>;
+  columns: (keyof T)[];
 }
 
 class UnsecurePLSql implements Query {
@@ -45,9 +45,7 @@ class PLSql implements Query {
 
   //  list of variable assigned to a type
   // ({ type: 'my_var' })
-  _declare: {
-    [id: string]: string,
-  };
+  _declare: Record<string, string>;
 
   get bindVars() {
     return this._bindVars;
@@ -57,8 +55,8 @@ class PLSql implements Query {
 
   columns = [];
 
-  static recursiveParse(params: Obj, parent = ''): Array<string> {
-    let res: Array<Obj | string>;
+  static recursiveParse(params: Obj, parent = ''): string[] {
+    let res: (Obj | string)[];
     if (Array.isArray(params)) {
       res = params.map((p, i) => PLSql.recursiveParse(p, `${parent}(${i})`));
     } else if (params && typeof params === 'object') {
@@ -68,12 +66,12 @@ class PLSql implements Query {
       res = [[parent, ':=', params].join(' ')];
     }
 
-    return res.reduce((acc, val) => acc.concat(val), []);
+    return (res.reduce((acc, val) => acc.concat(val) as string, [])) as string[];
   }
 
   static getDeclaredPart(query: PLSql) {
     // save type to retrieve easier variable name
-    const map: Map<string, string> = new Map();
+    const map = new Map<string, string>();
 
     const declarePart = query._declare;
     const pkg = query._pkg;
@@ -112,7 +110,7 @@ class PLSql implements Query {
           delete renamedParams[param];
         });
 
-        const renamedParamsStr = `${PLSql.recursiveParse(renamedParams).join('; ')}`;
+        const renamedParamsStr = PLSql.recursiveParse(renamedParams).join('; ');
         queryBegin += renamedParamsStr ? `${renamedParamsStr};` : '';
       }
     }
@@ -124,7 +122,7 @@ class PLSql implements Query {
     };
   }
 
-  declare(dec: { [id: string]: string }) {
+  declare(dec: Record<string, string>) {
     this._declare = dec;
 
     return this;
@@ -145,19 +143,20 @@ class PLSql implements Query {
   /**
    * If a Buffer is used, all parameters have to be declared as "bind"
    */
-  params(params: Obj | Array<unknown> = {}) {
-    if (Array.isArray(params)) {
-      this._params = params;
+  params(params: Obj | unknown[] = {}) {
+    let _params = params;
+    if (Array.isArray(_params)) {
+      this._params = _params;
       return this;
     }
-    params = mapper(params, Object, true);
-    if (!Array.isArray(params)) {
-      Object.keys(params).forEach((paramKey) => {
-        if (typeof params === 'object' && !Array.isArray(params) && typeof params[paramKey] !== 'undefined') {
-          if (params[paramKey] instanceof Buffer || params[paramKey] instanceof Readable) {
-            this._bindVars[paramKey] = params[paramKey];
+    _params = mapper(_params, Object, true);
+    if (!Array.isArray(_params)) {
+      Object.keys(_params).forEach((paramKey) => {
+        if (typeof _params === 'object' && !Array.isArray(_params) && typeof _params[paramKey] !== 'undefined') {
+          if (_params[paramKey] instanceof Buffer || _params[paramKey] instanceof Readable) {
+            this._bindVars[paramKey] = _params[paramKey];
           } else if (typeof this._params === 'object') {
-            this._params[paramKey] = params[paramKey];
+            this._params[paramKey] = _params[paramKey];
           }
         }
       });
@@ -194,11 +193,11 @@ class PLSql implements Query {
     // it's not possible to have declare with list of string
     // merge declare and un declared params
     if (typeof this._params === 'object' && !Array.isArray(this._params)) {
-      const initial: Array<string> = [];
+      const initial: string[] = [];
       const paramsPart = [
         // parse only un declared params
         ...Object.keys(this._params)
-          .filter((key) => queryDeclaredKeyParams.indexOf(key) === -1)
+          .filter((key) => !queryDeclaredKeyParams.includes(key))
           .reduce((a, b) => {
             if (typeof this._params === 'object') {
               // fix coerced string

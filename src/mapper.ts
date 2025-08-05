@@ -1,5 +1,5 @@
-import { Readable } from 'stream';
-import type { Class } from './types';
+import { Readable } from 'node:stream';
+import type { Class, Obj } from './types';
 import { camelcaseToKebabCase, kebabCaseToCamelcase } from './_base/str';
 import { isDate, protectValue } from './_base/utils';
 
@@ -22,14 +22,14 @@ const isNeedMapKey = (key: string, map: Map) => {
   return !(key && map === kebabCaseToCamelcase && (indexOf === -1));
 };
 
-const _recursiveParse = (map: Map, protect: (v: unknown) => unknown, params: any, key?: string) => {
-  let res: any = {};
+const _recursiveParse = (map: Map, protect: (v: unknown) => unknown, params: Obj, key?: string) => {
+  let res: Obj = {};
 
   if (Array.isArray(params)) {
     let newK = String(key);
 
     // It's not possible to use a private attr
-    if (newK.substring(0, 1) === '_') {
+    if (newK.startsWith('_')) {
       newK = newK.substring(1);
     }
 
@@ -72,11 +72,11 @@ const _recursiveParse = (map: Map, protect: (v: unknown) => unknown, params: any
           let alreadyProtected = false;
           if (!Array.isArray(p)) {
             if (typeof p === 'object') {
-              p = (Object.keys(p) as string[]).reduce((acc, v) => {
+              p = (Object.keys(p)).reduce<string[]>((acc, v) => {
                 acc.push(`${camelcaseToKebabCase(v)} => ${protect(p[v])}`);
 
                 return acc;
-              }, [] as string[]);
+              }, []);
 
               alreadyProtected = true;
             } else {
@@ -107,7 +107,7 @@ const _recursiveParse = (map: Map, protect: (v: unknown) => unknown, params: any
   } else if (key !== undefined) {
     let newK = key;
 
-    if (newK.substring(0, 1) === '_') {
+    if (newK.startsWith('_')) {
       newK = newK.substring(1);
     }
 
@@ -121,7 +121,7 @@ const _recursiveParse = (map: Map, protect: (v: unknown) => unknown, params: any
       res[newK] = params;
     }
   } else if (typeof params !== 'object') {
-    res = protect(params);
+    res = protect(params) as Obj;
   } else {
     res = params;
   }
@@ -135,7 +135,7 @@ const recursiveReverseParse = _recursiveParse.bind(null, camelcaseToKebabCase);
 
 // @ts-ignore, allow Object as default class
 const mapper = <T>(obj: unknown, Cls: Class<T> = Object, reverse = false) => {
-  const mapObj = reverse ? recursiveReverseParse((v) => v, obj) : recursiveMapParse((v) => v, obj);
+  const mapObj = reverse ? recursiveReverseParse((v) => v, obj as Obj) : recursiveMapParse((v) => v, obj as Obj);
 
   const _obj = new Cls();
 
@@ -148,7 +148,7 @@ const mapper = <T>(obj: unknown, Cls: Class<T> = Object, reverse = false) => {
 
 // @ts-ignore, allow Object as default class
 const mapAndProtect = <T>(obj: unknown, Cls: Class<T> = Object, reverse = false) => {
-  const mapObj = reverse ? recursiveReverseParse(protectValue, obj) : recursiveMapParse(protectValue, obj);
+  const mapObj = reverse ? recursiveReverseParse(protectValue, obj as Obj) : recursiveMapParse(protectValue, obj as Obj);
 
   const _obj = new Cls();
 

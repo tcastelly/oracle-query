@@ -1,4 +1,5 @@
-import { PLSql, createQuery } from '@/backend';
+import type { PLSql } from '@/backend';
+import { createQuery } from '@/backend';
 import { protectValue } from '@/_base/utils';
 
 describe('GIVEN createQuery', () => {

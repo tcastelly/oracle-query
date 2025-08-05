@@ -3,57 +3,59 @@ const isDate = (d: Date | string | object | number) => Object.prototype.toString
 const isNumeric = (n: string | number | boolean) => n !== ''
   && typeof n !== 'boolean'
   && !Number.isNaN(+n)
-  && String(n).substring(0, 1) !== '+';
+  && !String(n).startsWith('+');
 
 const isMobileNumber = (n: unknown) => n !== ''
   && typeof n === 'string'
-  && !!String(n).match(/^[+]?([0-9]*[.\s\-()]|[0-9]+){3,24}$/);
+  && !!(/^[+]?([0-9]*[.\s\-()]|[0-9]+){3,24}$/.exec(String(n)));
 
 const protectValue = (toProtect: null | string | boolean | number) => {
-  if (toProtect === null) {
+  let _toProtect = toProtect;
+
+  if (_toProtect === null) {
     return 'NULL';
   }
 
-  if (isMobileNumber(toProtect)) {
-    return `'${String(toProtect)}'`;
+  if (isMobileNumber(_toProtect)) {
+    return `'${String(_toProtect)}'`;
   }
 
-  if (isNumeric(toProtect)) {
-    return +toProtect;
+  if (isNumeric(_toProtect)) {
+    return +_toProtect;
   }
 
-  const toProtectStr = String(toProtect);
+  const toProtectStr = String(_toProtect);
 
   // Don t use quote for Date
   const patterDate = /^TO_DATE\('[0-9-]+',( )?'[A-Z-]+'\)/;
-  const matchesDate = toProtectStr.match(patterDate);
+  const matchesDate = patterDate.exec(toProtectStr);
 
   // don t use quote for valid json
   let isJson = false;
 
-  if (typeof toProtect === 'string') {
+  if (typeof _toProtect === 'string') {
     // if the parse fail, set raw value
     try {
-      JSON.parse(toProtect);
+      JSON.parse(_toProtect);
       isJson = true;
     } catch (e) {
       isJson = false;
     }
   }
 
-  if (!matchesDate && typeof toProtect === 'string' && !isJson) {
-    toProtect = `'${toProtect.replace(/'/g, '\'\'')}'`;
+  if (!matchesDate && typeof _toProtect === 'string' && !isJson) {
+    _toProtect = `'${_toProtect.replace(/'/g, '\'\'')}'`;
   }
 
-  if (isJson && typeof toProtect === 'string') {
-    toProtect = `'${toProtect.replace(/'/g, '\'\'')}'`;
+  if (isJson && typeof _toProtect === 'string') {
+    _toProtect = `'${_toProtect.replace(/'/g, '\'\'')}'`;
   }
 
-  if (typeof toProtect === 'boolean') {
-    toProtect = toProtect === true ? 'TRUE' : 'FALSE';
+  if (typeof _toProtect === 'boolean') {
+    _toProtect = _toProtect ? 'TRUE' : 'FALSE';
   }
 
-  return toProtect;
+  return _toProtect;
 };
 
 export {

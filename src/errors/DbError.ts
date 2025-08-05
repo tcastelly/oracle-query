@@ -1,4 +1,4 @@
-import { EOL } from 'os';
+import { EOL } from 'node:os';
 import CustomError from './CustomError';
 import type { Query } from '../createQuery';
 

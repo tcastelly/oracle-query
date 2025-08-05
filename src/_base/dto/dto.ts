@@ -7,7 +7,7 @@ import type { Obj, Class, T } from '../../types';
  * Each cls in mixins will create an other dto, in function of the set/get, the proxy return the good
  */
 
-const decorator = (target: T, ...mixins: Array<Class>) => {
+const decorator = (target: T, ...mixins: Class[]) => {
   const decoratedAttr = Object.getOwnPropertyNames(target.prototype);
 
   return class extends target {
@@ -109,7 +109,7 @@ const decorator = (target: T, ...mixins: Array<Class>) => {
   };
 };
 
-export default function (args: T | { mixins?: Array<Class> }, ...mixins: Array<Class>): any {
+export default function (args: T | { mixins?: Class[] }, ...mixins: Class[]): any {
   // called by @dto({ mixins: [] })
   if (typeof args === 'object' && args.mixins) {
     return (target: T) => decorator(target, ...(args.mixins || []));

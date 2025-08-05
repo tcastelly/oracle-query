@@ -3,7 +3,6 @@ import type { Obj } from '@/types';
 
 @dto
 class ItemDto {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(obj?: Obj) {
   }
 
@@ -14,7 +13,6 @@ class ItemDto {
 
 @dto
 export class ParentDto {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(obj?: Obj) {
   }
 
@@ -28,28 +26,27 @@ interface SampleDto extends ParentDto {
   mixins: [ParentDto],
 })
 class SampleDto {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(obj?: Obj) {
   }
 
   id = 0;
 
   @hidden
-    password: string;
+  password: string;
 
   @boolean
-    ok: boolean;
+  ok: boolean;
 
   @boolean
-    ko: boolean;
+  ko: boolean;
 
-  _items: Array<ItemDto> = [];
+  _items: ItemDto[] = [];
 
-  set items(_items: Array<ItemDto | Obj>) {
+  set items(_items: (ItemDto | Obj)[]) {
     this._items = _items.map((item) => new ItemDto(item));
   }
 
-  get items() {
+  get items(): ItemDto[] {
     return this._items;
   }
 }

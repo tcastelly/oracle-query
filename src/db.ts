@@ -1,4 +1,4 @@
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import oracledb from 'oracledb';
 import type { Lob, BindParameters } from 'oracledb';
 import { kebabCaseToCamelcase } from '@/_base/str';
@@ -20,28 +20,28 @@ const dbTypes = {
   STRING: oracledb.STRING,
 } as const;
 
-type OutputType = {
-  metaData: Array<{ name: string }>,
-};
+interface OutputType {
+  metaData: { name: string }[];
+}
 
 type OutputCursorType = {
-  getRows: () => Promise<unknown[]>,
-  close: () => void,
+  getRows: () => Promise<unknown[]>;
+  close: () => void;
   toQueryStream: () => {
     on: (
       eventName: 'data' | 'error' | 'close' | 'end',
       cb: (args: unknown) => Promise<void> | void,
-    ) => void,
-  },
+    ) => void;
+  };
 } & OutputType;
 
 const _onExec = (db: Db<any>, outBinds: any) => outBinds;
 
-const mapColumn: (columns: Array<{ name: string }>) => Array<string> = (metaData) => metaData
+const mapColumn: (columns: { name: string }[]) => string[] = (metaData) => metaData
   .map((column) => kebabCaseToCamelcase(column.name));
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function defaultMap<T>(this: Db<T>, v: {[id: string]: unknown} | string, i: number): any {
+function defaultMap<T>(this: Db<T>, v: Record<string, unknown> | string, i: number): any {
   if (v && this._outputVarType === oracledb.CURSOR) {
     return mapper(v);
   }
@@ -114,14 +114,14 @@ class Db<T> {
 
     const columnMap = mapColumn(metaData);
 
-    this._query.columns = columnMap as Array<keyof T>;
+    this._query.columns = columnMap as (keyof T)[];
 
-    const rowMap: {[id: string]: unknown}[] = [];
+    const rowMap: Record<string, unknown>[] = [];
 
     return new Promise((resolve, reject) => {
       let i = 0;
 
-      queryStream.on('data', async (row: Array<Obj>) => {
+      queryStream.on('data', async (row: Obj[]) => {
         const _row = row
           .map((v, j) => ({
             [columnMap[j]]: v,
@@ -156,7 +156,7 @@ class Db<T> {
       await connection.release();
     }
 
-    return res as T extends [unknown, ...unknown[]] ? T[] : (T extends Array<unknown> ? T : T[]);
+    return res as T extends [unknown, ...unknown[]] ? T[] : (T extends unknown[] ? T : T[]);
   }
 
   async execBlob(): Promise<T> {
@@ -207,7 +207,7 @@ class Db<T> {
     return res as T;
   }
 
-  static release() {
+  static async release() {
     return oracledb.getPool().close();
   }
 
@@ -242,8 +242,8 @@ class Db<T> {
     try {
       // specific behavior for clob as param
       // extract Readable params from list of params
-      const clobs: { [id: string]: Readable } = {};
-      const params: { [id: string]: unknown } = {};
+      const clobs: Record<string, Readable> = {};
+      const params: Record<string, unknown> = {};
 
       Object.keys(this._query.bindVars).forEach((key) => {
         if (this._query.bindVars[key] instanceof Readable) {
@@ -255,9 +255,9 @@ class Db<T> {
 
       // clobs have to be mapped as Promise<oracle.Lob>
       const makingClobs = newClobs(connection, clobs);
-      const resolvedClobs: { [id: string]: Lob } = {};
+      const resolvedClobs: Record<string, Lob> = {};
 
-      const clobsPromises: Array<Promise<Lob>> = [];
+      const clobsPromises: Promise<Lob>[] = [];
       Object.keys(makingClobs).forEach((key) => {
         clobsPromises.push(makingClobs[key]);
         makingClobs[key].then((clob) => {
@@ -291,7 +291,7 @@ class Db<T> {
   }
 }
 
-export default function <T = undefined>(userName: string) {
+export default function<T = undefined>(userName: string) {
   return new Db<T>(userName);
 }
 

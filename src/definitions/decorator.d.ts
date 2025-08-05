@@ -1,3 +1,3 @@
 export type DescriptorType = TypedPropertyDescriptor<any> & {
-  session?: any
+  session?: any;
 };

@@ -1,13 +1,12 @@
-import { Readable } from 'stream';
-import oracledb, { Lob } from 'oracledb';
+import type { Readable } from 'node:stream';
+import type { Lob } from 'oracledb';
+import oracledb from 'oracledb';
 
-type StrList = {
-  [id: string]: Readable,
-}
+type StrList = Record<string, Readable>;
 
 // convert list of readable to list of Promise<oracle.Lob>
 export default function (connection: oracledb.Connection, strList: StrList) {
-  const initial: { [id: string]: Promise<Lob> } = {};
+  const initial: Record<string, Promise<Lob>> = {};
 
   return Object
     .keys(strList)

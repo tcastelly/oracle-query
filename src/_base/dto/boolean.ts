@@ -11,7 +11,7 @@ const isTrue = (value: string | number | boolean): boolean => {
  * int/string to boolean
  */
 
-export default function <T> (target: T, key: keyof T, descriptor?: DescriptorType): any {
+export default function<T> (target: T, key: keyof T, descriptor?: DescriptorType): any {
   const privateKey = `_${String(key)}`;
 
   if (descriptor) {

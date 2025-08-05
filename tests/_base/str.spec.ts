@@ -25,7 +25,7 @@ describe('GIVEN an string', () => {
   });
 
   describe('WHEN transform camelcase to kebabcase', () => {
-    const attrs: Map<string, string> = new Map([
+    const attrs = new Map<string, string>([
       ['abcAbcAbAbc0Ab100Abc', 'ABC_ABC_AB_ABC_0_AB_100_ABC'],
       ['abcAbc0AbcAbc', 'ABC_ABC_0_ABC_ABC'],
       ['abcAbc100AbcAbc', 'ABC_ABC_100_ABC_ABC'],
@@ -44,7 +44,7 @@ describe('GIVEN an string', () => {
   });
 
   describe('WHEN transform kebabcase to camelcase', () => {
-    const attrs: Map<string, string> = new Map([
+    const attrs = new Map<string, string>([
       ['ABC_ABC_AB_ABCDE_0_AB_100_ABC', 'abcAbcAbAbcde0Ab100Abc'],
       ['ABC_ABC_0_ABC_ABC', 'abcAbc0AbcAbc'],
       ['ABC_ABC_100_ABC_ABC', 'abcAbc100AbcAbc'],

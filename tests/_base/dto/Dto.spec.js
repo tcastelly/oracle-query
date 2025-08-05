@@ -1,4 +1,4 @@
-import { dbDate, dto } from '@/_base/dto';
+import { dbDate, dto } from '../../../src/_base';
 import SampleDto, { ItemDto } from '../SampleDto';
 
 describe('GIVEN a Dto', () => {
@@ -6,16 +6,16 @@ describe('GIVEN a Dto', () => {
   beforeAll(async () => {
     const ParentDto = dto(class {
       @dbDate
-        dt;
+      dt;
 
       @dbDate
-        dt2;
+      dt2;
     });
     ProductDto = dto(class {
       nm;
 
       @dbDate
-        defaultDt = '2022-09-21';
+      defaultDt = '2022-09-21';
     }, ParentDto);
   });
 

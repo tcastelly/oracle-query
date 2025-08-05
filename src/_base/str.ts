@@ -3,7 +3,9 @@ import { isNumeric } from './utils';
 const isUpperCase: (str: string) => boolean = (str) => !isNumeric(str) && str.toUpperCase() === str;
 
 const clear = (str = '') => {
-  str = str
+  let _str = str;
+
+  _str = _str
     .trim()
     // replace accents
     .normalize('NFD')
@@ -13,25 +15,26 @@ const clear = (str = '') => {
     .replace(/[^a-zA-Z0-9\-_]/gi, '-')
     .toLowerCase();
 
-  while (str.search('--') > -1) {
-    str = str.replace(/--/, '-');
+  while (_str.search('--') > -1) {
+    _str = _str.replace(/--/, '-');
   }
 
-  if (str[0] === '-') {
-    str = str.substring(1);
+  if (_str.startsWith('-')) {
+    _str = _str.substring(1);
   }
 
-  if (str[str.length - 1] === '-') {
-    str = str.substring(0, str.length - 1);
+  if (_str.endsWith('-')) {
+    _str = _str.substring(0, _str.length - 1);
   }
-  return str.trim();
+  return _str.trim();
 };
 
 const kebabCaseToCamelcase = (str = '', seprator = '_', toLowerCase = true) => {
-  str = toLowerCase ? str
-    .toLowerCase() : str;
+  let _str = str;
+  _str = toLowerCase ? _str
+    .toLowerCase() : _str;
 
-  return str.split(seprator)
+  return _str.split(seprator)
     .reduce((a, b) => a + (a ? b.substring(0, 1).toUpperCase() + b.substring(1) : b), '');
 };
 
