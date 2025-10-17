@@ -1,4 +1,4 @@
-import type { Obj, Class, T } from '../../types';
+import type { Class, Obj, T } from '../../types';
 
 /**
  * Dto Proxy
@@ -87,15 +87,12 @@ const decorator = (target: T, ...mixins: Class[]) => {
 
         // Implements Object.keys
         ownKeys,
-        // NodeJS fix to retrieve properly deep Dto
-        ...(typeof window === 'undefined' ? {
-          getOwnPropertyDescriptor() {
-            return {
-              enumerable: true,
-              configurable: true,
-            };
-          },
-        } : {}),
+        getOwnPropertyDescriptor() {
+          return {
+            enumerable: true,
+            configurable: true,
+          };
+        },
       });
 
       // proxy constructor, assign all attributes
