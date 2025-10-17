@@ -282,7 +282,7 @@ class Db<T> {
       });
 
       // close clob is deprecated, destroy instead
-      return clobList.map((clob) => clob.destroy());
+      clobList.map((clob) => clob.destroy());
     } catch (e) {
       throw new DbError(e as Error & { code: string }, this._query as Query<unknown>);
     }
