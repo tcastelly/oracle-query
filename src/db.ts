@@ -136,7 +136,7 @@ class Db<T> {
       });
       queryStream.on('error', reject);
       queryStream.on('end', async () => {
-        resolve(await Promise.all(rowMap));
+        resolve(rowMap);
       });
     });
   }
@@ -282,7 +282,7 @@ class Db<T> {
       });
 
       // close clob is deprecated, destroy instead
-      await Promise.all(clobList.map((clob) => clob.destroy()));
+      return clobList.map((clob) => clob.destroy());
     } catch (e) {
       throw new DbError(e as Error & { code: string }, this._query as Query<unknown>);
     }
