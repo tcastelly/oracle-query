@@ -18,12 +18,12 @@ const config: Config = {
     {
       displayName: 'dom',
       testEnvironment: 'jsdom',
-      testMatch: ['<rootDir>/tests/**/*.spec.ts?(x)'],
+      testMatch: ['<rootDir>/tests/**/*.spec.@(ts|js)?(x)'],
     },
     {
       displayName: 'node',
       testEnvironment: 'node',
-      testMatch: ['<rootDir>/tests/**/*.spec.node.ts?(x)'],
+      testMatch: ['<rootDir>/tests/**/*.spec.@(ts|js)?(x)'],
     },
   ],
 };

@@ -1,4 +1,4 @@
-import { dbDate, dto } from '../../../src/_base';
+import { dbDate, dto } from '../../../src/_base/dto';
 import SampleDto, { ItemDto } from '../SampleDto';
 
 describe('GIVEN a Dto', () => {
@@ -118,7 +118,7 @@ describe('GIVEN a Dto', () => {
     beforeAll(async () => {
       sample = new SampleDto({
         id: 42,
-        ok: 1,
+        ok: true,
         ko: 0,
         password: 'mysecretpassword',
         items: [
