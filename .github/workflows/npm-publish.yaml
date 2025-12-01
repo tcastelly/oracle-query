@@ -4,6 +4,11 @@ on:
     branches:
       - master
       - test
+
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
 jobs:
   build_publish:
     runs-on: ubuntu-latest
@@ -22,7 +27,7 @@ jobs:
         uses: actions/setup-node@v4
         if: steps.version-updated.outputs.has-updated
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies and build 🔧
@@ -31,6 +36,17 @@ jobs:
 
       - name: Publish package on NPM 📦
         if: steps.version-updated.outputs.has-updated
-        run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm install -g npm@latest
+          # Get version from package.json
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Package version: $VERSION"
+          
+          # Check if version contains a prerelease identifier
+          if [[ "$VERSION" == *"-"* ]]; then
+            echo "Prerelease detected, publishing with tag 'beta'"
+            npm publish --tag beta
+          else
+            echo "Stable release, publishing with default tag 'latest'"
+            npm publish
+          fi
