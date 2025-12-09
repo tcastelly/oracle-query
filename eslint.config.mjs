@@ -4,6 +4,7 @@ import { includeIgnoreFile } from '@eslint/compat';
 import js from '@eslint/js';
 import { configs, plugins, rules } from 'eslint-config-airbnb-extended';
 import typescriptEslintPlugin from '@typescript-eslint/eslint-plugin';
+import customRules from '@tcy/eslint-rules';
 
 const gitignorePath = path.resolve('.', '.gitignore');
 
@@ -13,7 +14,6 @@ const defaultConfig = [
     languageOptions: {
       parser,
       parserOptions: {
-        project: './tsconfig.json',
         tsconfigRootDir: path.resolve('.'),
         sourceType: 'module',
         ecmaVersion: 'latest',
@@ -47,6 +47,7 @@ const typescriptConfig = [
     files: ['**/*.+(ts|tsx|mts|cts|js|mjs|cjs|jsx)'],
     plugins: {
       '@typescript-eslint': typescriptEslintPlugin,
+      'custom-rules': customRules,
     },
     rules: {
       '@typescript-eslint/naming-convention': [
@@ -68,6 +69,10 @@ const typescriptConfig = [
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@stylistic/max-len': [2, 150, 4],
       'no-underscore-dangle': 'off',
+
+      'custom-rules/import-specifiers-per-line': ['error', { maxSpecifiers: 4 }],
+      'custom-rules/export-specifiers-per-line': 'error',
+      'custom-rules/array-elements-per-line': 'error',
     },
   },
 
