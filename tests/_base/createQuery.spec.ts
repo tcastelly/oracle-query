@@ -564,4 +564,53 @@ describe('GIVEN createQuery', () => {
       expect(q.toString()).toEqual('BEGIN :res := pkg.do_something(ARR_ID => T_ARR_ID(1, 2), ARR_OTHER_ID => T_ARR_ID(3, 4)); END;');
     });
   });
+
+  describe('GIVEN a query with complex object', () => {
+    const arr = [
+      {
+        metaData: {
+          information: 'something',
+        },
+        timeSeries: [
+          {
+            dt: '2025-12-09',
+            value: 10,
+          },
+        ],
+      },
+      {
+        metaData: {
+          information: 'something 2',
+        },
+        timeSeries: [
+          {
+            dt: '2025-12-09',
+            value: 20,
+          },
+        ],
+      },
+    ];
+
+    it('THEN the stringify query should be correct', () => {
+      const query = createQuery()
+        .pkg('pkg')
+        .declare({
+          'pkg.arr': 'arr',
+        })
+        .func('do_something')
+        .params({
+          arr,
+        });
+
+      expect(query.toString()).toBe([
+        'DECLARE var_0 pkg.arr; ',
+        'BEGIN var_0(0).META_DATA.INFORMATION := \'something\'; ',
+        'var_0(0).TIME_SERIES(0).DT := \'2025-12-09\'; ',
+        'var_0(0).TIME_SERIES(0).VALUE := 10; ',
+        'var_0(1).META_DATA.INFORMATION := \'something 2\'; ',
+        'var_0(1).TIME_SERIES(0).DT := \'2025-12-09\'; ',
+        'var_0(1).TIME_SERIES(0).VALUE := 20; ',
+        ':res := pkg.do_something(ARR => var_0); END;'].join(''));
+    });
+  });
 });
