@@ -30,14 +30,11 @@ jobs:
           node-version: '24.x'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install dependencies and build 🔧
-        if: steps.version-updated.outputs.has-updated
-        run: npm ci && npm run build
-
       - name: Publish package on NPM 📦
         if: steps.version-updated.outputs.has-updated
         run: |
           npm install -g npm@latest
+          npm ci
           # Get version from package.json
           VERSION=$(node -p "require('./package.json').version")
           echo "Package version: $VERSION"
