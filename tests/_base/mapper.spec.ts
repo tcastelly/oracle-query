@@ -1,12 +1,11 @@
 import { mapper } from '@/mapper';
+import SampleDto from './SampleDto';
 
 class ItemDto {
   id: unknown;
 
   lbl: unknown;
 }
-
-class SampleDto {}
 
 describe('GIVEN an Object to map', () => {
   describe('WHEN map', () => {
@@ -101,11 +100,18 @@ describe('GIVEN an Object to map', () => {
       ok: 1,
       ko: 0,
       parentAttr: 'im the parent',
+      nullableBool: 1,
       items: [],
     };
+
     const res = mapper(inDto, SampleDto);
     it('THEN Dto has to be instantiated', () => {
       expect(res instanceof SampleDto).toBe(true);
+    });
+    it('AND decorator executed', () => {
+      expect(res.ok).toBe(true);
+      expect(res.ko).toBe(false);
+      expect(res.nullableBool).toBe(true);
     });
     it('AND all attributes have to be map', () => {
       expect(Object.keys(res)).toEqual(

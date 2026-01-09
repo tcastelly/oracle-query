@@ -2,37 +2,43 @@ import type { DescriptorType } from '@/definitions/decorator.d';
 
 /**
  * If the value is null return null
- * Else apply the decorator
+ * Else return the decorator value
  */
-export default function<T> (decorator: ((target: T, key: keyof T, descriptor?: DescriptorType) => any)): any {
+export default function<T>(decorator: ((target: T, key: keyof T, descriptor?: DescriptorType) => any)): any {
   return (target: T, key: keyof T, descriptor?: DescriptorType) => {
     // because `privateKey` start by `_` it will be hidden for Object.keys
     const privateKey = `_${String(key)}`;
 
-    const r = decorator(target, key, descriptor);
+    const _target = {} as T;
 
-    if (descriptor) {
-      // @ts-ignore - not standard
-      const initVal = descriptor?.initializer?.() ?? null;
-      Object.defineProperty(target, privateKey, {
-        writable: true,
-        // @ts-ignore - not standard
-        value: initVal,
-      });
-    }
+    // @ts-ignore
+    const decoratedAttr = decorator(_target, key, descriptor);
+
+    Object.defineProperty(_target, key, decoratedAttr);
+
+    // @ts-ignore - not standard
+    const initVal = descriptor?.initializer ? descriptor.initializer() : null;
+
+    Object.defineProperty(target, privateKey, {
+      writable: true,
+      value: initVal,
+    });
 
     return {
-      set(value: unknown) {
+      set(value: T[keyof T]) {
         const _this = (this as Record<string, unknown>);
-        _this[privateKey] = value;
-        r.set(value);
+        _target[key] = value;
+
+        if (value === null) {
+          _this[privateKey] = null;
+        } else {
+          _this[privateKey] = _target[key];
+        }
       },
       get() {
         const _this = (this as Record<string, unknown>);
-        if (_this[privateKey] === null) {
-          return null;
-        }
-        return r.get();
+
+        return _this[privateKey];
       },
       enumerable: true,
       configurable: true,
