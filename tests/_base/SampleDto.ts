@@ -1,4 +1,9 @@
-import { boolean, dto, hidden } from '@/_base/dto/index';
+import {
+  boolean,
+  dto,
+  hidden,
+  nullable,
+} from '@/_base/dto/index';
 import type { Obj } from '@/types';
 
 @dto
@@ -33,6 +38,9 @@ class SampleDto {
 
   @hidden
   password: string;
+
+  @nullable(boolean)
+  nullableBool: null | boolean;
 
   @boolean
   ok: boolean;

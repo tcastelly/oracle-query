@@ -19,6 +19,36 @@ describe('GIVEN a Dto', () => {
     }, ParentDto);
   });
 
+  describe('WHEN use `nullable`', () => {
+    let sample;
+
+    beforeAll(async () => {
+      sample = new SampleDto({
+        nullableBool: 1,
+      });
+    });
+
+    it('THEN `1` should be true', () => {
+      expect(sample.nullableBool).toBe(true);
+    });
+    it('THEN `0` should be false', () => {
+      sample.nullableBool = 0;
+      expect(sample.nullableBool).toBe(false);
+    });
+    it('THEN `true` should be true', () => {
+      sample.nullableBool = 1;
+      expect(sample.nullableBool).toBe(true);
+    });
+    it('THEN `true` should be true', () => {
+      sample.nullableBool = false;
+      expect(sample.nullableBool).toBe(false);
+    });
+    it('THEN `null` should be null', () => {
+      sample.nullableBool = null;
+      expect(sample.nullableBool).toBe(null);
+    });
+  });
+
   describe('WHEN set an existing attribute', () => {
     let product;
     beforeAll(async () => {
@@ -92,6 +122,7 @@ describe('GIVEN a Dto', () => {
       expect(cloned.password).toBe(undefined);
       expect(JSON.stringify(cloned)).toBe(JSON.stringify({
         items: [{ id: 1, lbl: 'first item' }],
+        nullableBool: null,
         ok: true,
         ko: false,
         id: 42,
@@ -134,12 +165,14 @@ describe('GIVEN a Dto', () => {
       expect(sample.password).toBe('mysecretpassword');
       expect(JSON.stringify(sample)).toBe(JSON.stringify({
         items: [{ id: 1, lbl: 'first item' }],
+        nullableBool: null,
         ok: true,
         ko: false,
         id: 42,
       }));
       expect(JSON.stringify(Object.keys(sample))).toBe(JSON.stringify([
         'items',
+        'nullableBool',
         'ok',
         'ko',
         'parentAttr',
@@ -181,6 +214,7 @@ describe('GIVEN a Dto', () => {
     it('THEN dto should be destructured', () => {
       expect(JSON.stringify(json)).toBe(JSON.stringify({
         items: [],
+        nullableBool: null,
         ok: null,
         ko: null,
         id: 42,
