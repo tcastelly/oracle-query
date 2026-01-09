@@ -529,7 +529,7 @@ describe('GIVEN createQuery', () => {
     });
     it('THEN the stringify query should be correct', () => {
       expect(query.toString()).toBe('BEGIN :res := pkg.do_something(ID => '
-      + 'PKG_API.ID(AN_ID => 3, ANOTHER_ID => 2)); END;');
+        + 'PKG_API.ID(AN_ID => 3, ANOTHER_ID => 2)); END;');
     });
   });
 
@@ -562,6 +562,83 @@ describe('GIVEN createQuery', () => {
         });
 
       expect(q.toString()).toEqual('BEGIN :res := pkg.do_something(ARR_ID => T_ARR_ID(1, 2), ARR_OTHER_ID => T_ARR_ID(3, 4)); END;');
+    });
+  });
+
+  describe('GIVEN a query with complex objects in array', () => {
+    const arr = [
+      {
+        metaData: {
+          information: 'something',
+        },
+        timeSeries: [
+          {
+            dt: '2025-12-09',
+            value: 10,
+          },
+        ],
+      },
+      {
+        metaData: {
+          information: 'something 2',
+        },
+        timeSeries: [
+          {
+            dt: '2025-12-09',
+            value: 20,
+          },
+        ],
+      },
+    ];
+
+    it('THEN the stringify query should be correct', () => {
+      const query = createQuery()
+        .pkg('pkg')
+        .declare({
+          'pkg.arr': 'arr',
+        })
+        .func('do_something')
+        .params({
+          arr,
+        });
+
+      expect(query.toString()).toBe([
+        'DECLARE var_0 pkg.arr; ',
+        'BEGIN var_0(0).META_DATA.INFORMATION := \'something\'; ',
+        'var_0(0).TIME_SERIES(0).DT := \'2025-12-09\'; ',
+        'var_0(0).TIME_SERIES(0).VALUE := 10; ',
+        'var_0(1).META_DATA.INFORMATION := \'something 2\'; ',
+        'var_0(1).TIME_SERIES(0).DT := \'2025-12-09\'; ',
+        'var_0(1).TIME_SERIES(0).VALUE := 20; ',
+        ':res := pkg.do_something(ARR => var_0); END;'].join(''));
+    });
+  });
+
+  describe('GIVEN a query with complex objects', () => {
+    it('THEN the stringify query should be correct', () => {
+      const query = createQuery()
+        .pkg('pkg')
+        .declare({
+          'pkg.metadata': 'meta_data',
+          'pkg.arr': 'time_series',
+        })
+        .func('do_something')
+        .params({
+          meta_data: {
+            information: 'something',
+          },
+          time_series: [
+            {
+              dt: '2025-12-09',
+              value: 10,
+            },
+          ],
+        });
+
+      expect(query.toString()).toBe(['DECLARE var_0 pkg.metadata; var_1 pkg.arr; ',
+        'BEGIN var_0.INFORMATION := \'something\'; ',
+        'var_1(0).DT := \'2025-12-09\'; var_1(0).VALUE := 10; ',
+        ':res := pkg.do_something(META_DATA => var_0, TIME_SERIES => var_1); END;'].join(''));
     });
   });
 });

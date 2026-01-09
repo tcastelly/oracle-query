@@ -102,6 +102,11 @@ const _recursiveParse = (map: Map, protect: (v: unknown) => unknown, params: Obj
     if (key) {
       let newK = key;
       newK = isNeedMapKey(newK, map) ? map(newK) : key;
+
+      // fix `declared` param
+      if (/_/.exec(newK)) {
+        newK = newK.toUpperCase();
+      }
       return { [String(newK)]: res };
     }
   } else if (key !== undefined) {
