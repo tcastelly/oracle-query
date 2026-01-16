@@ -17,7 +17,7 @@ export default function<T>(decorator: ((target: T, key: keyof T, descriptor?: De
     Object.defineProperty(_target, key, decoratedAttr);
 
     // @ts-ignore - not standard
-    const initVal = descriptor?.initializer ? descriptor.initializer() : null;
+    const initVal = descriptor?.initializer ? descriptor.initializer() : undefined;
 
     Object.defineProperty(target, privateKey, {
       writable: true,

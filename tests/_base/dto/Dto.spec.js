@@ -107,6 +107,7 @@ describe('GIVEN a Dto', () => {
         id: 42,
         ok: 1,
         ko: 0,
+        nullableBool: null,
         password: 'mysecretpassword',
         items: [
           new ItemDto({ id: 1, lbl: 'first item' }),
@@ -151,6 +152,7 @@ describe('GIVEN a Dto', () => {
         id: 42,
         ok: true,
         ko: 0,
+        nullableBool: null,
         password: 'mysecretpassword',
         items: [
           new ItemDto({ id: 1, lbl: 'first item' }),
@@ -207,7 +209,10 @@ describe('GIVEN a Dto', () => {
     let _dto;
 
     beforeAll(async () => {
-      _dto = new SampleDto({ id: 42 });
+      _dto = new SampleDto({
+        id: 42,
+        nullableBool: null,
+      });
       json = { ..._dto };
     });
 
@@ -215,8 +220,6 @@ describe('GIVEN a Dto', () => {
       expect(JSON.stringify(json)).toBe(JSON.stringify({
         items: [],
         nullableBool: null,
-        ok: null,
-        ko: null,
         id: 42,
       }));
     });

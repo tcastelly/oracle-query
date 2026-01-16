@@ -10,7 +10,7 @@ export default function (target: Obj, key: string, descriptor?: DescriptorType):
   Object.defineProperty(target, privateKey, {
     writable: true,
     // @ts-ignore - not a standard
-    value: descriptor.initializer ? descriptor.initializer() : null,
+    value: descriptor.initializer ? descriptor.initializer() : undefined,
   });
 
   return {

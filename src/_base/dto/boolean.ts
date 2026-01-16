@@ -1,6 +1,10 @@
 import type { DescriptorType } from '@/definitions/decorator.d';
 
-const isTrue = (value: string | number | boolean): boolean => {
+const isTrue = (value: undefined | string | number | boolean): undefined | boolean => {
+  if (value === undefined) {
+    return undefined;
+  }
+
   const valStr = String(value).toUpperCase();
 
   return value === true || value === 1 || value === 'A' || valStr === String(true).toUpperCase();
@@ -18,7 +22,7 @@ export default function<T> (target: T, key: keyof T, descriptor?: DescriptorType
     Object.defineProperty(target, privateKey, {
       writable: true,
       // @ts-ignore - not standard
-      value: descriptor.initializer ? isTrue(descriptor.initializer()) : null,
+      value: descriptor.initializer ? isTrue(descriptor.initializer()) : undefined,
     });
   }
 
