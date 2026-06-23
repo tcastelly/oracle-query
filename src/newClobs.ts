@@ -12,13 +12,19 @@ export default function (connection: oracledb.Connection, strList: StrList) {
     .keys(strList)
     .reduce((acc, v) => {
       acc[v] = new Promise((resolve, reject) => {
-        connection.createLob(oracledb.CLOB, (err, templob) => {
-          templob.on('error', (_err) => reject(_err));
-          templob.on('finish', () => resolve(templob));
+        const createdLobCb = (err: oracledb.DBError | null, templob?: Lob) => {
+          if (err) {
+            reject(err);
+          } else if (templob) {
+            templob.on('error', (_err) => reject(_err));
+            templob.on('finish', () => resolve(templob));
 
-          strList[v].on('error', (_err) => reject(_err));
-          strList[v].pipe(templob);
-        });
+            strList[v].on('error', (_err) => reject(_err));
+            strList[v].pipe(templob);
+          }
+        };
+
+        connection.createLob(oracledb.CLOB, createdLobCb);
       });
 
       return acc;

@@ -1,4 +1,9 @@
 import {
+  describe,
+  expect,
+  it,
+} from '@jest/globals';
+import {
   isUpperCase,
   clear,
   camelcaseToKebabCase,

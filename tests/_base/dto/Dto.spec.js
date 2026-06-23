@@ -1,3 +1,9 @@
+import {
+  beforeAll,
+  describe,
+  expect,
+  it,
+} from '@jest/globals';
 import { dbDate, dto } from '../../../src/_base/dto';
 import SampleDto, { ItemDto } from '../SampleDto';
 

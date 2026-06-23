@@ -1,9 +1,9 @@
+import { mkdir, rm } from 'node:fs/promises';
+
 //
 // script launched before build only
 
-const { mkdir, rm } = require('node:fs/promises');
-
-const del = (dir) => rm(dir, { recursive: true, force: true });
+const del = (dir: string) => rm(dir, { recursive: true, force: true });
 
 const main = async () => {
   await Promise.all([

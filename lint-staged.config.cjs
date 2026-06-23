@@ -3,7 +3,7 @@ module.exports = {
     'eslint --fix',
   ],
   '*.{ts,tsx}': [
-    () => 'tsc --skipLibCheck --noEmit',
+    () => 'tsgo --skipLibCheck --noEmit',
     'eslint --cache --fix',
   ],
 };

@@ -1,10 +1,11 @@
 import path from 'node:path';
 import parser from '@typescript-eslint/parser';
-import { includeIgnoreFile } from '@eslint/compat';
+import { includeIgnoreFile } from '@eslint/config-helpers';
 import js from '@eslint/js';
 import { configs, plugins, rules } from 'eslint-config-airbnb-extended';
 import typescriptEslintPlugin from '@typescript-eslint/eslint-plugin';
-import customRules from '@tcy/eslint-rules';
+import tcyPlugin from '@tcy/eslint-rules/back';
+import tcyRecommendedRules from '@tcy/eslint-rules/back/recommended';
 
 const gitignorePath = path.resolve('.', '.gitignore');
 
@@ -38,29 +39,26 @@ const nodeConfig = [
 ];
 
 const typescriptConfig = [
-  plugins.typescriptEslint,
   ...configs.base.typescript,
-  rules.typescript.typescriptEslintStrict,
+  tcyPlugin,
 
   // custom rules
   {
-    files: ['**/*.+(ts|tsx|mts|cts|js|mjs|cjs|jsx)'],
+    files: ['**/*.+(ts|tsx|mts|cts)'],
     plugins: {
       '@typescript-eslint': typescriptEslintPlugin,
-      'custom-rules': customRules,
+    },
+    languageOptions: {
+      parser,
+      parserOptions: {
+        tsconfigRootDir: path.resolve('.'),
+        sourceType: 'module',
+        ecmaVersion: 'latest',
+      },
     },
     rules: {
-      '@typescript-eslint/naming-convention': [
-        'error',
-        {
-          selector: 'variable',
-          format: null,
-          custom: {
-            regex: '^(_?[a-zA-Z0-9]*)|([A-Z0-9_])$',
-            match: true,
-          },
-        },
-      ],
+      ...tcyRecommendedRules,
+      ...rules.typescript.typescriptEslintStrict.rules,
       '@typescript-eslint/no-useless-constructor': 'off',
       '@typescript-eslint/promise-function-async': 'off',
       '@typescript-eslint/array-type': 'off',
@@ -69,21 +67,18 @@ const typescriptConfig = [
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
       '@stylistic/max-len': [2, 150, 4],
       'no-underscore-dangle': 'off',
-
-      'custom-rules/import-specifiers-per-line': ['error', { maxSpecifiers: 4 }],
-      'custom-rules/export-specifiers-per-line': 'error',
-      'custom-rules/array-elements-per-line': 'error',
     },
   },
 
   // specific rules for node scripts
   {
-    files: ['scripts/**/*.{js,cjs}'],
+    files: ['scripts/**/*.ts'],
     plugins: {
       '@typescript-eslint': typescriptEslintPlugin,
     },
     rules: {
       'import-x/extensions': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off'
     },
   },
 
@@ -157,14 +152,12 @@ const typescriptConfig = [
       '@typescript-eslint/no-empty-function': 'off',
     },
   },
-  {
-    files: ['src/extracted_apis/*.ts'],
-    rules: {},
-  },
+
   {
     files: ['eslint.config.mjs'],
     rules: {},
   },
+
   {
     ignores: ['dist/**', 'node_modules/**', 'tests/unit/*.js'],
   },

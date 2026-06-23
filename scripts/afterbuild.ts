@@ -1,5 +1,5 @@
-const fs = require('node:fs/promises');
-const recursiveCopy = require('./_recursiveCopy.cjs');
+import fs from 'node:fs/promises';
+import recursiveCopy from './recursiveCopy';
 
 //
 // script launched after build only

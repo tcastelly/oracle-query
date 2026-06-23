@@ -10,12 +10,13 @@ module.exports = {
     [require.resolve('@babel/preset-typescript')],
   ],
   plugins: [
-    [require.resolve('@babel/plugin-proposal-decorators'), { legacy: true, }],
-    [require.resolve('@babel/plugin-proposal-class-properties')],
+    [require.resolve('@babel/plugin-proposal-decorators'), { version: 'legacy' }],
+    [require.resolve('@babel/plugin-transform-class-properties')],
     [require.resolve('babel-plugin-module-resolver'), {
-      root: ["./src/"],
+      root: ['./src'],
       alias: {
-        "@": "./src"
+        tests: './tests',
+        '@': './src',
       },
     }],
   ],

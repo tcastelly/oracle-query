@@ -1,4 +1,10 @@
 import type { PLSql } from '@/backend';
+import {
+  beforeAll,
+  describe,
+  expect,
+  it,
+} from '@jest/globals';
 import { createQuery } from '@/backend';
 import { protectValue } from '@/_base/utils';
 

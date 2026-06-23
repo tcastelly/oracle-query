@@ -6,15 +6,14 @@
     "noImplicitAny": true,
     "experimentalDecorators": true,
     "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
-    "baseUrl": ".",
     "skipLibCheck": true,
     "outDir": "./dist",
     "paths": {
       "@/*": [
-        "src/*"
+        "./src/*"
       ]
     },
     // for tsc definition only
