@@ -4,15 +4,18 @@ const path = require('path');
 module.exports = {
   target: 'node',
   context: __dirname,
+  experiments: {
+    outputModule: true,
+  },
   entry: {
     index: './src/backend.ts',
     dto: './src/_base/dto/index.ts',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    libraryTarget: 'commonjs',
+    library: { type: 'module' },
     filename: '[name].js',
-    chunkFormat: 'commonjs',
+    chunkFormat: 'module',
   },
   externals: {
     oracledb: 'oracledb',
