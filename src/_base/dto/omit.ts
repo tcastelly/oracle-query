@@ -1,4 +1,4 @@
-type IgnoredClass<C extends new (...args: any[]) => any, K extends keyof InstanceType<C>> = (
+export type IgnoredClass<C extends new (...args: any[]) => any, K extends keyof InstanceType<C>> = (
     new (...args: ConstructorParameters<C>) => Omit<InstanceType<C>, K>
     )
   & Omit<C, 'prototype'>;
