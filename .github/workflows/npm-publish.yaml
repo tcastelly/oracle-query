@@ -14,17 +14,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: detect package.version changes
-        uses: MontyD/package-json-updated-action@master
+        uses: tcastelly/package-json-updated-action@master
         id: version-updated
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         if: steps.version-updated.outputs.has-updated
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         if: steps.version-updated.outputs.has-updated
         with:
           node-version: '24.x'
