@@ -5,13 +5,13 @@ import {
   it,
 } from '@jest/globals';
 import { dbDate, dto } from '../../../src/_base/dto';
-import ignore from '../../../src/_base/dto/ignore';
+import omit from '../../../src/_base/dto/omit.ts';
 import SampleDto, { ItemDto } from '../SampleDto';
 
 describe('GIVEN a Dto', () => {
   let ProductDto;
   beforeAll(async () => {
-    const ParentDto = ignore(dto(class {
+    const ParentDto = omit(dto(class {
       @dbDate
       dt;
 
