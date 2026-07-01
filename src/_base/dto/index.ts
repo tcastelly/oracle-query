@@ -3,6 +3,7 @@ import dbDate, { mapToDbDate } from './dbDate';
 import nullable from './nullable';
 import dto from './dto';
 import hidden from './hidden';
+import ignore from './ignore';
 
 export {
   dto,
@@ -11,4 +12,5 @@ export {
   boolean,
   nullable,
   hidden,
+  ignore,
 };

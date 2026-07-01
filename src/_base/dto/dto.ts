@@ -14,6 +14,13 @@ const decorator = (target: T, ...mixins: Class[]) => {
     constructor(attrs: Obj = {}) {
       super(attrs);
 
+      // rewrite JSON.stringify
+      // am already declared dto can force to ignore fields
+      // e.g:
+      // const AA = @dto class A { dt3: string }
+      // AA._ignore = ['dt3'];
+      let ignore: string[] = [];
+
       const targets = mixins.map((Cls) => {
         const dto = new Cls();
         const setables = dto._setables;
@@ -73,12 +80,19 @@ const decorator = (target: T, ...mixins: Class[]) => {
           return true;
         },
         get(_target, name) {
-          // rewrite JSON.stringify
+          if ((ignore || []).includes(name as string)) {
+            return undefined;
+          }
+
           if (name === 'toJSON') {
             return () => ownKeys().reduce((acc, v) => {
               acc[v] = (getTarget(v) || _target)[v];
               return acc;
             }, {});
+          }
+
+          if (name === '_ignore') {
+            return _target._ignore;
           }
 
           // default access to a variable
@@ -99,6 +113,8 @@ const decorator = (target: T, ...mixins: Class[]) => {
       Object.keys(attrs).forEach((attr) => {
         proxy[attr] = attrs[attr];
       });
+
+      ignore = proxy._ignore;
 
       // eslint-disable-next-line no-constructor-return
       return proxy;
