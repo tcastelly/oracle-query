@@ -3,8 +3,10 @@ import dbDate, { mapToDbDate } from './dbDate';
 import nullable from './nullable';
 import dto from './dto';
 import hidden from './hidden';
+import omit from './omit';
+import type { IgnoredClass as IgnoredClass$ } from './omit';
 
-export * from './omit';
+export type IgnoredClass<C extends new (...args: any[]) => any, K extends keyof InstanceType<C>> = IgnoredClass$<C, K>;
 
 export {
   dto,
@@ -13,4 +15,5 @@ export {
   boolean,
   nullable,
   hidden,
+  omit,
 };
