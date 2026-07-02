@@ -57,7 +57,7 @@ const decorator = (target: T, ...mixins: Class[]) => {
       const ownKeys = () => setables.filter((key) => {
         const potentialHidden = `?${key}`;
         const isHidden = key.substring(0, 1) === '?' || setables.findIndex((k) => k === potentialHidden) > -1;
-        if (isHidden) {
+        if (isHidden || (ignore || []).includes(key)) {
           return false;
         }
 
@@ -66,7 +66,7 @@ const decorator = (target: T, ...mixins: Class[]) => {
         const isPrivate = key.substring(0, 1) === '_';
         const isDecorated = isPrivate && setables.findIndex((k) => k === potentialPublicName) > -1;
 
-        return !(isPrivate && !isDecorated);
+        return !(isPrivate && !isDecorated && (ignore || []).includes(key));
       });
 
       const proxy = new Proxy(this, {

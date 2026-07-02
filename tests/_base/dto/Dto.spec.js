@@ -11,15 +11,15 @@ import SampleDto, { ItemDto } from '../SampleDto';
 describe('GIVEN a Dto', () => {
   let ProductDto;
   beforeAll(async () => {
-    const ParentDto = omit(dto(class {
+    const ParentDto = dto(class {
       @dbDate
       dt;
 
       @dbDate
       dt2;
-    }));
+    });
 
-    ProductDto = dto(class {
+    ProductDto = omit(dto(class {
       nm;
 
       @dbDate
@@ -27,7 +27,10 @@ describe('GIVEN a Dto', () => {
 
       @dbIntBoolean
       defaultIsSts = true;
-    }, ParentDto);
+
+      @dbDate
+      dt3;
+    }, ParentDto), ['dt3']);
   });
 
   describe('WHEN use `nullable`', () => {
@@ -262,6 +265,20 @@ describe('GIVEN a Dto', () => {
       it('AND instanceof should be SampleDto', () => {
         expect(i).toBe(true);
       });
+    });
+  });
+
+  describe('WHEN omit is used', () => {
+    let product;
+    beforeAll(async () => {
+      product = new ProductDto();
+      product.nm = '#1';
+      product.dt = '2019-11-25';
+      product.dt2 = 'TO_DATE(\'2019-11-25\', \'YYYY-MM-DD\')';
+      product.dt3 = 'TO_DATE(\'2019-11-25\', \'YYYY-MM-DD\')';
+    });
+    it('THEN the dt3 should not defined', () => {
+      expect(product.dt3).toBe(undefined);
     });
   });
 });
