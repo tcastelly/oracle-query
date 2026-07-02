@@ -4,7 +4,7 @@ import {
   expect,
   it,
 } from '@jest/globals';
-import { dbDate, dto } from '../../../src/_base/dto';
+import { dbDate, dto, dbIntBoolean } from '../../../src/_base/dto';
 import omit from '../../../src/_base/dto/omit.ts';
 import SampleDto, { ItemDto } from '../SampleDto';
 
@@ -24,6 +24,9 @@ describe('GIVEN a Dto', () => {
 
       @dbDate
       defaultDt = '2022-09-21';
+
+      @dbIntBoolean
+      defaultIsSts = true;
     }, ParentDto);
   });
 
@@ -72,7 +75,7 @@ describe('GIVEN a Dto', () => {
         attrs = Object.keys(product);
       });
       it('THEN all attr keys should be retrieved', () => {
-        expect(JSON.stringify(attrs)).toBe(JSON.stringify(['defaultDt', 'dt', 'dt2', 'nm']));
+        expect(JSON.stringify(attrs)).toBe(JSON.stringify(['defaultDt', 'defaultIsSts', 'dt', 'dt2', 'nm']));
       });
     });
 
@@ -103,6 +106,19 @@ describe('GIVEN a Dto', () => {
 
     it('THEN attributes should not be set', () => {
       expect(product.nm2).toBe(undefined);
+    });
+  });
+
+  describe('WHEN assign a boolean on a @dbIntBoolean decorator field', () => {
+    let product;
+
+    beforeAll(async () => {
+      product = new ProductDto();
+      product.defaultIsSts = true;
+    });
+
+    it('AND `defaultIsSts` attribute should be cast to number', () => {
+      expect(product.defaultIsSts).toBe(1);
     });
   });
 

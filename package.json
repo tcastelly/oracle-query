@@ -1,6 +1,6 @@
 {
   "name": "oracle-query",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "description": "oracle query builder",
   "repository": {
     "type": "git",
