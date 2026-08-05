@@ -4,20 +4,20 @@ import type { Obj } from '@/types';
 export default function (target: Obj, key: string, descriptor?: DescriptorType): any {
   const privateKey = `_${key}`;
 
+  // @ts-ignore - not standard
+  const init = descriptor.initializer?.() ?? null;
+
   Object.defineProperty(target, privateKey, {
     writable: true,
-    // @ts-ignore - not standard
-    value: descriptor.initializer ? Number(descriptor.initializer()) : null,
+    value: init !== null && init !== undefined ? Number(init) : init,
   });
 
   return {
     set(value: string | number) {
-      // @ts-ignore
-      this[privateKey] = +value;
+      this[privateKey] = value !== null && value !== undefined ? Number(value) : value;
     },
     get(): number {
-      // @ts-ignore
-      return this[privateKey] as number;
+      return this[privateKey];
     },
     enumerable: true,
     configurable: true,
