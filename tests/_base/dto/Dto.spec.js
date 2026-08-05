@@ -4,7 +4,14 @@ import {
   expect,
   it,
 } from '@jest/globals';
-import { dbDate, dto, dbIntBoolean } from '../../../src/_base/dto';
+import {
+
+  dbDate,
+  dto,
+  dbIntBoolean,
+  number,
+
+} from '../../../src/_base/dto';
 import omit from '../../../src/_base/dto/omit.ts';
 import SampleDto, { ItemDto } from '../SampleDto';
 
@@ -17,6 +24,9 @@ describe('GIVEN a Dto', () => {
 
       @dbDate
       dt2;
+
+      @number
+      nb = '542';
     });
 
     ProductDto = omit(dto(class {
@@ -31,6 +41,28 @@ describe('GIVEN a Dto', () => {
       @dbDate
       dt3;
     }, ParentDto), ['dt3']);
+  });
+
+  describe('WHEN use `number` decorator', () => {
+    let sample;
+
+    beforeAll(async () => {
+      sample = new ProductDto();
+    });
+
+    it('THEN the attribute should be a number', () => {
+      expect(sample.nb).toBe(542);
+    });
+
+    describe('WHEN update this attribute for a string', () => {
+      beforeEach(() => {
+        sample.nb = '678';
+      });
+
+      it('THEN the updated attribute should be a number', () => {
+        expect(sample.nb).toBe(678);
+      });
+    });
   });
 
   describe('WHEN use `nullable`', () => {
@@ -78,7 +110,7 @@ describe('GIVEN a Dto', () => {
         attrs = Object.keys(product);
       });
       it('THEN all attr keys should be retrieved', () => {
-        expect(JSON.stringify(attrs)).toBe(JSON.stringify(['defaultDt', 'defaultIsSts', 'dt', 'dt2', 'nm']));
+        expect(JSON.stringify(attrs)).toBe(JSON.stringify(['defaultDt', 'defaultIsSts', 'dt', 'dt2', 'nb', 'nm']));
       });
     });
 
