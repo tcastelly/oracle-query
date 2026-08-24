@@ -5,12 +5,10 @@ import {
   it,
 } from '@jest/globals';
 import {
-
   dbDate,
   dto,
   dbIntBoolean,
   number,
-
 } from '../../../src/_base/dto';
 import omit from '../../../src/_base/dto/omit.ts';
 import SampleDto, { ItemDto } from '../SampleDto';
