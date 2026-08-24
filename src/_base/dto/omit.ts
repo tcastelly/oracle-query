@@ -1,12 +1,14 @@
 export type Constructor<T = any> = new (...args: any[]) => T;
 
-export type OmitCls<C extends Constructor, K extends keyof InstanceType<C>> = (new (...args: ConstructorParameters<C>) => Omit<InstanceType<C>, K>)
+export type OmitCls<C extends new (...args: any[]) => any, K extends keyof InstanceType<C>> = (
+    new (...args: ConstructorParameters<C>) => Omit<InstanceType<C>, K>
+    )
   & Omit<C, 'prototype'>;
 
 const omitCls = <C extends Constructor, K extends keyof InstanceType<C>>(
   cls: C,
   keys: K[],
-): OmitCls<C, K> => {
+): (new (...args: ConstructorParameters<C>) => Omit<InstanceType<C>, K>) & Omit<C, 'prototype'> => {
   class OmittedClass extends (cls as any) {
     constructor(...args: any[]) {
       super(...args);
@@ -17,11 +19,10 @@ const omitCls = <C extends Constructor, K extends keyof InstanceType<C>>(
     }
   }
 
-  // Safe mutation without using 'any' to please other unsafe ESLint rules
   const proto = cls.prototype as Record<string, unknown>;
   proto._ignore = keys;
 
-  return OmittedClass as unknown as OmitCls<C, K>;
+  return OmittedClass as unknown as (new (...args: ConstructorParameters<C>) => Omit<InstanceType<C>, K>) & Omit<C, 'prototype'>;
 };
 
 export default omitCls;
