@@ -6,6 +6,7 @@ import hidden from './hidden';
 import number from './number';
 import date from './date';
 import omit from './omit';
+import omitCls from './omitCls';
 import dbStrBoolean from './dbStrBoolean';
 import dbIntBoolean from './dbIntBoolean';
 import dbFlagBoolean from './dbFlagBoolean';
@@ -20,6 +21,7 @@ export {
   nullable,
   hidden,
   omit,
+  omitCls,
   mapToDbDate,
   date,
   dbStrBoolean,
