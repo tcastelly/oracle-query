@@ -10,6 +10,8 @@ import dbStrBoolean from './dbStrBoolean';
 import dbIntBoolean from './dbIntBoolean';
 import dbFlagBoolean from './dbFlagBoolean';
 
+export type { DtoCls } from './dto';
+
 export {
   dto,
   number,

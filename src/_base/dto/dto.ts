@@ -223,18 +223,21 @@ const decorator = (target: T, ...mixins: Class[]) => {
 
 // called by @dto({ mixins: [] })
 // a class decorator can't change the type of the class it decorates (microsoft/TypeScript#4881),
-// so the mixins are only known at runtime here. Use `dto(cls, ...mixins)` to get them typed
+// so the mixins are only known at runtime here. Use `dto(cls, mixins)` to get them typed
 export default function dto(args: { mixins?: Class[] }): <C extends Class>(cls: C) => C;
+
+// called by dto(cls, [mixins])
+export default function dto<C extends Class, M extends Class[]>(cls: C, mixins: [...M]): DtoCls<C, M>;
 
 // called by @dto, or by dto(cls, ...mixins)
 export default function dto<C extends Class, M extends Class[]>(cls: C, ...mixins: M): DtoCls<C, M>;
 
-export default function dto(args: T | { mixins?: Class[] }, ...mixins: Class[]): any {
+export default function dto(args: T | { mixins?: Class[] }, ...mixins: (Class | Class[])[]): any {
   // called by @dto({ mixins: [] })
   if (typeof args === 'object' && args.mixins) {
     return (target: T) => decorator(target, ...(args.mixins || []));
   }
 
-  // called by @dto
-  return decorator(args as T, ...mixins);
+  // called by @dto, the mixins are accepted spread or as an array
+  return decorator(args as T, ...mixins.flat());
 }

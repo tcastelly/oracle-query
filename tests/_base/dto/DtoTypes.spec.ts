@@ -37,10 +37,28 @@ class MergedDto$ {
   flag: null | number;
 }
 
-// `dto(cls, ...mixins)`, the only form able to type the mixins
-const MergedDto = dto(MergedDto$, MixinDto);
+@dto
+class SecondMixinDto {
+  constructor(_attrs?: object) {
+  }
+
+  second: string;
+}
+
+// `dto(cls, [mixins])`, the only form able to type the mixins
+const MergedDto = dto(MergedDto$, [MixinDto]);
 
 type MergedDto = InstanceType<typeof MergedDto>;
+
+// the mixins are accepted spread too
+const SpreadDto = dto(MergedDto$, MixinDto);
+
+type SpreadDto = InstanceType<typeof SpreadDto>;
+
+// several mixins
+const MultiDto = dto(MergedDto$, [MixinDto, SecondMixinDto]);
+
+type MultiDto = InstanceType<typeof MultiDto>;
 
 describe('GIVEN the types of a dto', () => {
   it('THEN `dto(cls, ...mixins)` should expose the mixin fields', () => {
@@ -72,5 +90,24 @@ describe('GIVEN the types of a dto', () => {
     const decorated: string = new DecoratedDto().own;
 
     expect([bare, decorated]).toEqual([undefined, undefined]);
+  });
+
+  it('THEN the spread form should be typed like the array one', () => {
+    const spread = new SpreadDto({ label: 'l' });
+
+    const label: string = spread.label;
+    const flag: null | number = spread.flag;
+
+    // `@number` without initializer defaults to null
+    expect([label, flag]).toEqual(['l', null]);
+  });
+
+  it('THEN every mixin of the array should be exposed', () => {
+    const multi = new MultiDto({ label: 'l', second: 's' });
+
+    const label: string = multi.label;
+    const second: string = multi.second;
+
+    expect([label, second]).toEqual(['l', 's']);
   });
 });
