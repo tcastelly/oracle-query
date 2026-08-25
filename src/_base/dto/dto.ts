@@ -3,16 +3,104 @@ import type { Class, Obj, T } from '../../types';
 /**
  * Dto Proxy
  *
- * It's not possible to extends Proxified dto because of decorators used (@dbDate, ...)
  * Each cls in mixins will create an other dto, in function of the set/get, the proxy return the good
+ *
+ * A `class Child extends Parent` is supported too, the parent is resolved like a mixin:
+ * its decorated attributes are collected by walking the prototype chain, and the fields
+ * redeclared in the child take precedence.
  */
 
-const decorator = (target: T, ...mixins: Class[]) => {
-  const decoratedAttr = Object.getOwnPropertyNames(target.prototype);
+type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void
+  ? I
+  : never;
 
-  return class extends target {
+type MixinsInstance<M extends Class[]> = UnionToIntersection<InstanceType<M[number]>>;
+
+type Merged<C extends Class, M extends Class[]> = InstanceType<C> & Omit<MixinsInstance<M>, keyof InstanceType<C>>;
+
+/**
+ * Instance of `cls` augmented by every mixin.
+ * An attribute declared in `cls` always wins over the same attribute of a mixin
+ */
+export type DtoCls<C extends Class, M extends Class[]> = (new (attrs?: Obj) => Merged<C, M>)
+  & Omit<C, 'prototype'>
+  & { prototype: Merged<C, M> };
+
+/**
+ * Flags a class built by `dto`. Used as an own (non inherited) static, so a class
+ * extending a dto without being a dto itself (e.g. `omit`) is not detected as one
+ */
+const isDto = Symbol('isDto');
+
+const isDtoCls = (cls: unknown) => Object.hasOwn(cls as object, isDto);
+
+/**
+ * All attributes owned by the prototype chain of `cls`, `Object.prototype` excluded.
+ * Decorators (@number, @dbDate, ...) define accessors on the prototype, walking the chain
+ * is the only way to get the ones declared by a parent class
+ */
+const protoAttrs = (cls: T) => {
+  const attrs = new Set<string>();
+
+  let proto = cls.prototype as object | null;
+  while (proto && proto !== Object.prototype) {
+    Object.getOwnPropertyNames(proto).forEach((attr) => attrs.add(attr));
+    proto = Object.getPrototypeOf(proto) as object | null;
+  }
+
+  return [...attrs];
+};
+
+/**
+ * A parent constructor declares its own fields with `Object.defineProperty(this, attr)`.
+ * When a child redeclares the same attr with a decorator, the accessor is installed on the
+ * prototype and ends up shadowed by that own value. Give the accessor back its priority,
+ * and replay the value through it to keep an initializer of the parent
+ */
+const applyProtoAccessors = (instance: Obj) => {
+  Object.getOwnPropertyNames(instance).forEach((attr) => {
+    const own = Object.getOwnPropertyDescriptor(instance, attr);
+    if (!own || own.get || own.set) {
+      return;
+    }
+
+    let proto = Object.getPrototypeOf(instance) as object | null;
+    while (proto && proto !== Object.prototype) {
+      const inherited = Object.getOwnPropertyDescriptor(proto, attr);
+
+      // the closest declaration of the chain wins
+      if (inherited) {
+        if (inherited.get || inherited.set) {
+          delete instance[attr];
+
+          if (own.value !== undefined) {
+            instance[attr] = own.value;
+          }
+        }
+        return;
+      }
+
+      proto = Object.getPrototypeOf(proto) as object | null;
+    }
+  });
+};
+
+const decorator = (target: T, ...mixins: Class[]) => {
+  const decoratedAttr = protoAttrs(target);
+
+  const Dto = class extends target {
     constructor(attrs: Obj = {}) {
       super(attrs);
+
+      // a derived dto will build the proxy for the whole chain. Proxifying here too would
+      // make the derived class lose its own non decorated fields: babel assigns them with
+      // `this[attr] = undefined`, which the proxy `set` rejects as it's not a known setable
+      if (new.target !== Dto && isDtoCls(new.target)) {
+        // eslint-disable-next-line no-constructor-return
+        return this;
+      }
+
+      applyProtoAccessors(this);
 
       // rewrite JSON.stringify
       // an already declared dto can force to ignore fields
@@ -25,8 +113,11 @@ const decorator = (target: T, ...mixins: Class[]) => {
         .map((Cls) => {
           const dto = new Cls();
 
+          // a mixin is not necessarily a dto, fallback on its own attributes
+          const mixinSetables = (dto._setables ?? Object.getOwnPropertyNames(dto)) as PropertyKey[];
+
           // priorise decorator declared in target (not in parent)
-          const setables = (dto._setables as PropertyKey[]).filter((parrentK) => !decoratedAttr.find((k) => parrentK === k));
+          const setables = mixinSetables.filter((parrentK) => !decoratedAttr.find((k) => parrentK === k));
 
           return {
             dto,
@@ -40,7 +131,7 @@ const decorator = (target: T, ...mixins: Class[]) => {
         let i = 0;
 
         while (!found && i < length) {
-          found = targets[0].setables.includes(attrName);
+          found = targets[i].setables.includes(attrName);
           i += 1;
         }
 
@@ -124,9 +215,21 @@ const decorator = (target: T, ...mixins: Class[]) => {
       return proxy;
     }
   };
+
+  Object.defineProperty(Dto, isDto, { value: true });
+
+  return Dto;
 };
 
-export default function (args: T | { mixins?: Class[] }, ...mixins: Class[]): any {
+// called by @dto({ mixins: [] })
+// a class decorator can't change the type of the class it decorates (microsoft/TypeScript#4881),
+// so the mixins are only known at runtime here. Use `dto(cls, ...mixins)` to get them typed
+export default function dto(args: { mixins?: Class[] }): <C extends Class>(cls: C) => C;
+
+// called by @dto, or by dto(cls, ...mixins)
+export default function dto<C extends Class, M extends Class[]>(cls: C, ...mixins: M): DtoCls<C, M>;
+
+export default function dto(args: T | { mixins?: Class[] }, ...mixins: Class[]): any {
   // called by @dto({ mixins: [] })
   if (typeof args === 'object' && args.mixins) {
     return (target: T) => decorator(target, ...(args.mixins || []));

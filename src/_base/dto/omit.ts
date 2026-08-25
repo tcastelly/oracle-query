@@ -1,11 +1,6 @@
 export type Constructor<T = any> = new (...args: any[]) => T;
 
-export type OmitCls<C extends new (...args: any[]) => any, K extends keyof InstanceType<C>> = (
-    new (...args: ConstructorParameters<C>) => Omit<InstanceType<C>, K>
-    )
-  & Omit<C, 'prototype'>;
-
-const omitCls = <C extends Constructor, K extends keyof InstanceType<C>>(
+const omit = <C extends Constructor, K extends keyof InstanceType<C>>(
   cls: C,
   keys: K[],
 ): (new (...args: ConstructorParameters<C>) => Omit<InstanceType<C>, K>) & Omit<C, 'prototype'> => {
@@ -25,4 +20,4 @@ const omitCls = <C extends Constructor, K extends keyof InstanceType<C>>(
   return OmittedClass as unknown as (new (...args: ConstructorParameters<C>) => Omit<InstanceType<C>, K>) & Omit<C, 'prototype'>;
 };
 
-export default omitCls;
+export default omit;

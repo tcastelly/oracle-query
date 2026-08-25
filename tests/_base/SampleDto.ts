@@ -5,7 +5,6 @@ import {
   nullable,
 } from '@/_base/dto/index';
 import type { Obj } from '@/types';
-import type { OmitCls } from '@/_base/dto/omit';
 
 @dto
 class ItemDto {
@@ -25,19 +24,11 @@ export class ParentDto {
   parentAttr: string;
 
   // this field will be overrided by SampleDto
-  ok: number;
+  ok: number | boolean;
 }
 
-interface SampleDto extends OmitCls<typeof ParentDto, 'ok'> {
-}
-
-@dto({
-  mixins: [ParentDto],
-})
-class SampleDto {
-  constructor(obj?: Obj) {
-  }
-
+@dto
+class SampleDtoWithExtends extends ParentDto {
   id = 0;
 
   @hidden
@@ -63,8 +54,38 @@ class SampleDto {
   }
 }
 
-export default SampleDto;
+@dto({
+  mixins: [ParentDto],
+})
+class SampleDtoWithMixins {
+  id = 0;
+
+  @hidden
+  password: string;
+
+  @nullable(boolean)
+  nullableBool: null | boolean;
+
+  @boolean
+  ok: boolean;
+
+  @boolean
+  ko: boolean;
+
+  _items: ItemDto[] = [];
+
+  set items(_items: (ItemDto | Obj)[]) {
+    this._items = _items.map((item) => new ItemDto(item));
+  }
+
+  get items(): ItemDto[] {
+    return this._items;
+  }
+}
+
+export default SampleDtoWithExtends;
 
 export {
   ItemDto,
+  SampleDtoWithMixins,
 };

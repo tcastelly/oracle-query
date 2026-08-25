@@ -11,7 +11,7 @@ import {
   number,
 } from '../../../src/_base/dto';
 import omit from '../../../src/_base/dto/omit.ts';
-import SampleDto, { ItemDto } from '../SampleDto';
+import SampleDtoWithExtends, { ItemDto } from '../SampleDto';
 
 describe('GIVEN a Dto', () => {
   let ProductDto;
@@ -67,7 +67,7 @@ describe('GIVEN a Dto', () => {
     let sample;
 
     beforeAll(async () => {
-      sample = new SampleDto({
+      sample = new SampleDtoWithExtends({
         nullableBool: 1,
       });
     });
@@ -160,7 +160,7 @@ describe('GIVEN a Dto', () => {
     let cloned;
 
     beforeAll(async () => {
-      sample = new SampleDto({
+      sample = new SampleDtoWithExtends({
         id: 42,
         ok: 1,
         ko: 0,
@@ -191,7 +191,7 @@ describe('GIVEN a Dto', () => {
   describe('WHEN extends a dto', () => {
     let doc;
     beforeAll(async () => {
-      doc = new SampleDto({
+      doc = new SampleDtoWithExtends({
         parentAttr: 'a parent value',
       });
     });
@@ -205,7 +205,7 @@ describe('GIVEN a Dto', () => {
     let sample;
 
     beforeAll(async () => {
-      sample = new SampleDto({
+      sample = new SampleDtoWithExtends({
         id: 42,
         ok: true,
         ko: 0,
@@ -248,7 +248,7 @@ describe('GIVEN a Dto', () => {
     beforeAll(async () => {
       const itemDto1 = new ItemDto({ id: 1, lbl: 'lbl: 1' });
       const itemDto2 = { id: 2, lbl: 'lbl: 2' };
-      sampleDto = new SampleDto({
+      sampleDto = new SampleDtoWithExtends({
         items: [itemDto1, itemDto2],
       });
     });
@@ -266,7 +266,7 @@ describe('GIVEN a Dto', () => {
     let _dto;
 
     beforeAll(async () => {
-      _dto = new SampleDto({
+      _dto = new SampleDtoWithExtends({
         id: 42,
         nullableBool: null,
       });
@@ -286,7 +286,7 @@ describe('GIVEN a Dto', () => {
       let i;
       beforeEach(() => {
         t = typeof _dto;
-        i = _dto instanceof SampleDto;
+        i = _dto instanceof SampleDtoWithExtends;
       });
 
       it('THEN type should be an object', () => {

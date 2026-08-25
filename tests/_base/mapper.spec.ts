@@ -4,7 +4,7 @@ import {
   expect,
   it,
 } from '@jest/globals';
-import SampleDto from './SampleDto';
+import SampleDtoWithExtends, { SampleDtoWithMixins } from './SampleDto';
 
 class ItemDto {
   id: unknown;
@@ -99,7 +99,7 @@ describe('GIVEN an Object to map', () => {
     });
   });
 
-  describe('WHEN map inherited Dto', () => {
+  describe('WHEN map inherited Dto with extends', () => {
     const inDto = {
       id: 42,
       ok: 1,
@@ -109,9 +109,35 @@ describe('GIVEN an Object to map', () => {
       items: [],
     };
 
-    const res = mapper(inDto, SampleDto);
+    const res = mapper(inDto, SampleDtoWithExtends);
     it('THEN Dto has to be instantiated', () => {
-      expect(res instanceof SampleDto).toBe(true);
+      expect(res instanceof SampleDtoWithExtends).toBe(true);
+    });
+    it('AND decorator executed', () => {
+      expect(res.ok).toBe(true);
+      expect(res.ko).toBe(false);
+      expect(res.nullableBool).toBe(true);
+    });
+    it('AND all attributes have to be map', () => {
+      expect(Object.keys(res)).toEqual(
+        expect.arrayContaining(Object.keys(inDto)),
+      );
+    });
+  });
+
+  describe('WHEN map inherited Dto with mixins', () => {
+    const inDto = {
+      id: 42,
+      ok: 1,
+      ko: 0,
+      parentAttr: 'im the parent',
+      nullableBool: 1,
+      items: [],
+    };
+
+    const res = mapper(inDto, SampleDtoWithMixins);
+    it('THEN Dto has to be instantiated', () => {
+      expect(res instanceof SampleDtoWithMixins).toBe(true);
     });
     it('AND decorator executed', () => {
       expect(res.ok).toBe(true);

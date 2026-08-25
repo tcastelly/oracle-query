@@ -5,6 +5,10 @@
     "strictPropertyInitialization":  false,
     "noImplicitAny": true,
     "experimentalDecorators": true,
+
+    // allow re-declared class field if they share similar type
+    "useDefineForClassFields": false,
+
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "bundler",
