@@ -231,11 +231,32 @@ export default function dto(args: { mixins?: Class[] }): <C extends Class>(cls: 
 // parameters through `InstanceType` and couldn't be decorated anymore
 export default function dto<C extends Class>(cls: C): C & (new (attrs?: Obj) => InstanceType<C>);
 
+/**
+ * The two overloads below spell out their return type on purpose, `DtoCls` and `Obj` are NOT used.
+ *
+ * The declaration emitter keeps a named type as a reference, so a consumer of
+ * `const MyDto = dto(MyDto$, [Mixin])` would get `import("oracle-query/dto").DtoCls<...>` in its
+ * own .d.ts, and every project depending on it would have to resolve oracle-query to see the
+ * fields. Only the outer type has to be anonymous: `MixinsInstance` is resolved during the
+ * instantiation and disappears from the emitted declaration, which stays self contained.
+ *
+ * `MixinsInstance` can't be inlined either, `UnionToIntersection` only distributes over a naked
+ * type parameter and would give a union of the mixins instead of an intersection
+ */
+
 // called by dto(cls, [mixins])
-export default function dto<C extends Class, M extends Class[]>(cls: C, mixins: [...M]): DtoCls<C, M>;
+export default function dto<C extends Class, M extends Class[]>(
+  cls: C,
+  mixins: [...M],
+): (new (attrs?: Record<string, any>) => InstanceType<C> & Omit<MixinsInstance<M>, keyof InstanceType<C>>)
+  & Omit<C, 'prototype'>;
 
 // called by dto(cls, ...mixins)
-export default function dto<C extends Class, M extends Class[]>(cls: C, ...mixins: M): DtoCls<C, M>;
+export default function dto<C extends Class, M extends Class[]>(
+  cls: C,
+  ...mixins: M
+): (new (attrs?: Record<string, any>) => InstanceType<C> & Omit<MixinsInstance<M>, keyof InstanceType<C>>)
+  & Omit<C, 'prototype'>;
 
 export default function dto(args: T | { mixins?: Class[] }, ...mixins: (Class | Class[])[]): any {
   // called by @dto({ mixins: [] })
