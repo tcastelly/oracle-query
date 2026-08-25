@@ -41,6 +41,9 @@ class DecoratedDto {
 // a decorator is not allowed in a class expression, the class has to be declared first
 @dto
 class MergedDto$ {
+  constructor(_attrs?: object) {
+  }
+
   own: string;
 
   // redeclares a field of the mixin with an other type

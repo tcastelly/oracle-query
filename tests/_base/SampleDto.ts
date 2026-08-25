@@ -29,6 +29,10 @@ export class ParentDto {
 
 @dto
 class SampleDtoWithExtends extends ParentDto {
+  constructor(obj?: Obj) {
+    super(obj);
+  }
+
   id = 0;
 
   @hidden
@@ -58,6 +62,9 @@ class SampleDtoWithExtends extends ParentDto {
   mixins: [ParentDto],
 })
 class SampleDtoWithMixins {
+  constructor(obj?: Obj) {
+  }
+
   id = 0;
 
   @hidden
