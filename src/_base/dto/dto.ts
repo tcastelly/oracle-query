@@ -226,10 +226,15 @@ const decorator = (target: T, ...mixins: Class[]) => {
 // so the mixins are only known at runtime here. Use `dto(cls, mixins)` to get them typed
 export default function dto(args: { mixins?: Class[] }): <C extends Class>(cls: C) => C;
 
+// called by @dto, or by dto(cls) without mixin.
+// Intersecting `C` keeps the class assignable to itself, a generic class would lose its type
+// parameters through `InstanceType` and couldn't be decorated anymore
+export default function dto<C extends Class>(cls: C): C & (new (attrs?: Obj) => InstanceType<C>);
+
 // called by dto(cls, [mixins])
 export default function dto<C extends Class, M extends Class[]>(cls: C, mixins: [...M]): DtoCls<C, M>;
 
-// called by @dto, or by dto(cls, ...mixins)
+// called by dto(cls, ...mixins)
 export default function dto<C extends Class, M extends Class[]>(cls: C, ...mixins: M): DtoCls<C, M>;
 
 export default function dto(args: T | { mixins?: Class[] }, ...mixins: (Class | Class[])[]): any {

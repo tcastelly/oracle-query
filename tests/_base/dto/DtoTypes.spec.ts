@@ -19,6 +19,17 @@ class BareDto {
   own: string;
 }
 
+// a generic class has to stay decorable, its type parameters can't survive `InstanceType`
+@dto
+class GenericDto<T = Record<string, unknown>, Z = number> {
+  constructor(_attrs?: object) {
+  }
+
+  pk: Z;
+
+  row?: T;
+}
+
 // `@dto({ mixins })`, the mixins can't be typed here (microsoft/TypeScript#4881)
 @dto({
   mixins: [MixinDto],
@@ -90,6 +101,14 @@ describe('GIVEN the types of a dto', () => {
     const decorated: string = new DecoratedDto().own;
 
     expect([bare, decorated]).toEqual([undefined, undefined]);
+  });
+
+  it('THEN a generic dto should keep its type parameters', () => {
+    const generic = new GenericDto<{ nm: string }, string>({ pk: 'k' });
+
+    const pk: string = generic.pk;
+
+    expect(pk).toBe('k');
   });
 
   it('THEN the spread form should be typed like the array one', () => {
