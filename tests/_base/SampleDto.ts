@@ -5,6 +5,7 @@ import {
   nullable,
 } from '@/_base/dto/index';
 import type { Obj } from '@/types';
+import type { OmitCls } from '@/_base/dto/omit';
 
 @dto
 class ItemDto {
@@ -22,9 +23,12 @@ export class ParentDto {
   }
 
   parentAttr: string;
+
+  // this field will be overrided by SampleDto
+  ok: number;
 }
 
-interface SampleDto extends ParentDto {
+interface SampleDto extends OmitCls<typeof ParentDto, 'ok'> {
 }
 
 @dto({

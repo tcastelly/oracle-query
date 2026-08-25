@@ -15,21 +15,24 @@ const decorator = (target: T, ...mixins: Class[]) => {
       super(attrs);
 
       // rewrite JSON.stringify
-      // am already declared dto can force to ignore fields
+      // an already declared dto can force to ignore fields
       // e.g:
       // const AA = @dto class A { dt3: string }
       // AA._ignore = ['dt3'];
       let ignore: string[] = [];
 
-      const targets = mixins.map((Cls) => {
-        const dto = new Cls();
-        const setables = dto._setables;
+      const targets = mixins
+        .map((Cls) => {
+          const dto = new Cls();
 
-        return {
-          dto,
-          setables,
-        };
-      });
+          // priorise decorator declared in target (not in parent)
+          const setables = (dto._setables as PropertyKey[]).filter((parrentK) => !decoratedAttr.find((k) => parrentK === k));
+
+          return {
+            dto,
+            setables,
+          };
+        });
 
       const getTarget = (attrName: PropertyKey) => {
         const { length } = targets;
@@ -37,7 +40,7 @@ const decorator = (target: T, ...mixins: Class[]) => {
         let i = 0;
 
         while (!found && i < length) {
-          found = targets[0].setables.indexOf(attrName) > -1;
+          found = targets[0].setables.includes(attrName);
           i += 1;
         }
 
@@ -50,27 +53,27 @@ const decorator = (target: T, ...mixins: Class[]) => {
           ...targets.reduce((acc, v) => ([...acc, ...v.setables]), []),
           ...Object.getOwnPropertyNames(this),
         ]
-          .map((attr) => (attr.substring(0, 1) === '_' ? attr.substring(1) : attr))
+          .map((attr: string) => (attr.startsWith('_') ? attr.substring(1) : attr))
           .filter((attr) => attr !== 'constructor'))];
 
       // remove hidden
       const ownKeys = () => setables.filter((key) => {
         const potentialHidden = `?${key}`;
-        const isHidden = key.substring(0, 1) === '?' || setables.findIndex((k) => k === potentialHidden) > -1;
+        const isHidden = key.startsWith('?') || setables.findIndex((k) => k === potentialHidden) > -1;
         if (isHidden || (ignore || []).includes(key)) {
           return false;
         }
 
         const potentialPublicName = key.substring(1);
 
-        const isPrivate = key.substring(0, 1) === '_';
+        const isPrivate = key.startsWith('_');
         const isDecorated = isPrivate && setables.findIndex((k) => k === potentialPublicName) > -1;
 
         return !(isPrivate && !isDecorated && (ignore || []).includes(key));
       });
 
       const proxy = new Proxy(this, {
-        set(_target, name, value) {
+        set(_target, name: string, value) {
           if (setables.includes(name)) {
             (getTarget(name) || _target)[name] = value;
           }
@@ -85,10 +88,11 @@ const decorator = (target: T, ...mixins: Class[]) => {
           }
 
           if (name === 'toJSON') {
+            const init: Record<string, unknown> = {};
             return () => ownKeys().reduce((acc, v) => {
               acc[v] = (getTarget(v) || _target)[v];
               return acc;
-            }, {});
+            }, init);
           }
 
           if (name === '_ignore') {
